@@ -1,0 +1,55 @@
+{% extends "student/layout.html" %}
+{% block title %}Class Schedule{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>Class Schedule</h1>
+    <p>{{ semester.name if semester else 'Current semester' }}</p>
+</div>
+{% if courses %}
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:1.25rem;">
+    <div class="stat-card">
+        <div class="stat-label">Classes</div>
+        <div class="stat-value">{{ courses|length }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Credits</div>
+        <div class="stat-value">{{ courses|sum(attribute='credits') }}</div>
+    </div>
+</div>
+
+<div class="schedule-grid">
+    {% for course in courses %}
+    <div class="schedule-item">
+        <div class="schedule-time-block">
+            <div class="schedule-day">{{ course.schedule_day or 'TBA' }}</div>
+            <div class="schedule-time">{{ course.schedule_time or '—' }}</div>
+        </div>
+        <div>
+            <div class="course-code">{{ course.code }}</div>
+            <div class="course-title">{{ course.title }}</div>
+            <div class="course-meta">
+                <span>{{ course.credits_label or (course.credits ~ ' credits') }}</span>
+                <span>{{ course.room or 'Room TBA' }}</span>
+                {% if course.instructor_name %}<span>{{ course.instructor_name }}</span>{% endif %}
+            </div>
+        </div>
+        <div>
+            {% if course.status == 'waitlisted' %}
+            <span class="badge badge-amber">Waitlisted</span>
+            {% else %}
+            <span class="badge badge-emerald">Enrolled</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="glass-card">
+    <div class="empty-state">
+        <p>No classes scheduled for {{ semester.name if semester else 'this semester' }}.</p>
+        <a href="{{ url_for('student_courses') }}" class="btn btn-primary" style="margin-top:1rem;">Register for Courses</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

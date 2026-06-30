@@ -1,0 +1,68 @@
+{% extends "student/layout.html" %}
+{% block title %}Course Registration{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>Course Registration</h1>
+    <p>Enroll in courses offered for each semester</p>
+</div>
+<div id="registration-status-banner">
+    {% if semester and semester.registration_open %}
+    <div class="portal-banner portal-banner-open">
+        <div class="portal-banner-body">
+            <strong>Registration open — {{ semester.name }}</strong>
+            <p>Select courses below to enroll. Each subject is one course: <strong>2 cr</strong> (theory) or <strong>3 cr</strong> (theory + lab).</p>
+        </div>
+    </div>
+    {% elif semester %}
+    <div class="portal-banner portal-banner-closed">
+        <div class="portal-banner-body">
+            <strong>Registration closed — {{ semester.name }}</strong>
+            <p>Course listings are for reference only until the registrar opens enrollment.</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="portal-banner portal-banner-closed">
+        <div class="portal-banner-body"><strong>No active semester.</strong> Contact the registrar.</div>
+    </div>
+    {% endif %}
+</div>
+
+<div id="credit-hours-banner" class="portal-credit-banner" style="display:none;" aria-live="polite"></div>
+
+<div class="filter-bar">
+    <div class="search-input-wrap form-group">
+        <span class="search-icon">Search</span>
+        <input type="text" class="form-input" id="course-search" placeholder="Search by code, title, or description…">
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="filter-department">Department</label>
+        <select class="form-select" id="filter-department">
+            <option value="">All Departments</option>
+            {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.code }} — {{ dept.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="filter-semester">Semester</label>
+        <select class="form-select" id="filter-semester">
+            {% for sem in semesters %}
+            <option value="{{ sem.id }}" {% if sem.is_active %}selected{% endif %}
+                data-registration-open="{{ sem.registration_open }}">
+                {{ sem.name }}{% if sem.is_active %} (Active){% endif %}
+                {% if sem.registration_open %} — Open{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div id="course-results">
+    <div class="loading-overlay"><span class="loading-spinner"></span> Loading offered courses…</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/courses.js') }}"></script>
+{% endblock %}

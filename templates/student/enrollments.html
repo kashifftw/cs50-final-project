@@ -1,0 +1,44 @@
+{% extends "student/layout.html" %}
+{% block title %}My Enrollments{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>My Enrollments</h1>
+    <p>Enrolled, waitlisted, and completed courses</p>
+</div>
+<div class="filter-bar">
+    <div class="form-group">
+        <label class="form-label" for="enrollment-semester-filter">Filter by Semester</label>
+        <select class="form-select" id="enrollment-semester-filter">
+            <option value="">All Semesters</option>
+            {% for sem in semesters %}
+            <option value="{{ sem.id }}" {% if sem.is_active %}selected{% endif %}>{{ sem.name }}{% if sem.is_active %} (Active){% endif %}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="enrollment-status-filter">Status</label>
+        <select class="form-select" id="enrollment-status-filter">
+            <option value="">All Statuses</option>
+            <option value="enrolled">Enrolled</option>
+            <option value="waitlisted">Waitlisted</option>
+            <option value="completed">Completed</option>
+        </select>
+    </div>
+    {% if semesters %}
+    <div class="form-group" style="align-self:flex-end;">
+        <a href="{{ url_for('student_courses') }}" class="btn btn-primary">Register for Courses</a>
+    </div>
+    {% endif %}
+</div>
+
+<div id="enrollment-stats" class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:1.25rem;"></div>
+
+<div id="enrollment-list">
+    <div class="loading-overlay"><span class="loading-spinner"></span> Loading enrollments…</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/student-portal.js') }}"></script>
+{% endblock %}

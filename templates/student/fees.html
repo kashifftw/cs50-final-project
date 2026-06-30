@@ -1,0 +1,77 @@
+{% extends "student/layout.html" %}
+{% block title %}Fees{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>Fees & Payments</h1>
+    <p>View balances, due dates, and payment history</p>
+</div>
+
+<div class="dash-stat-row" style="grid-template-columns:repeat(2,1fr);max-width:600px;">
+    <div class="dash-stat-card">
+        <div>
+            <div class="dash-stat-label">Total Due</div>
+            <div class="dash-stat-value">${{ '%.2f'|format(fee_data.total_due) }}</div>
+        </div>
+    </div>
+    <div class="dash-stat-card">
+        <div>
+            <div class="dash-stat-label">Overdue Items</div>
+            <div class="dash-stat-value">{{ fee_data.overdue_count }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card" style="margin-bottom:1.25rem;padding:0;overflow:hidden;">
+    <div class="glass-card-header" style="padding:1rem 1.25rem;"><h2 class="glass-card-title">Fee Status</h2></div>
+    {% if fee_data.fees %}
+    <table class="data-table">
+        <thead>
+            <tr><th>Description</th><th>Amount</th><th>Paid</th><th>Due</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for fee in fee_data.fees %}
+            <tr>
+                <td>{{ fee.description }}{% if fee.semester_name %}<br><small>{{ fee.semester_name }}</small>{% endif %}</td>
+                <td>${{ '%.2f'|format(fee.amount) }}</td>
+                <td>${{ '%.2f'|format(fee.amount_paid) }}</td>
+                <td>{{ fee.due_date }}</td>
+                <td>
+                    {% if fee.status == 'paid' %}<span class="badge badge-emerald">Paid</span>
+                    {% elif fee.status == 'overdue' %}<span class="badge badge-red">Overdue</span>
+                    {% elif fee.status == 'partial' %}<span class="badge badge-amber">Partial</span>
+                    {% else %}<span class="badge badge-blue">Pending</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state" style="padding:1.5rem;">No fees on record.</p>
+    {% endif %}
+</div>
+
+<div class="glass-card" style="padding:0;overflow:hidden;">
+    <div class="glass-card-header" style="padding:1rem 1.25rem;"><h2 class="glass-card-title">Payment History</h2></div>
+    {% if fee_data.payments %}
+    <table class="data-table">
+        <thead>
+            <tr><th>Date</th><th>Fee</th><th>Amount</th><th>Method</th><th>Reference</th></tr>
+        </thead>
+        <tbody>
+            {% for p in fee_data.payments %}
+            <tr>
+                <td>{{ p.paid_at[:10] if p.paid_at else '—' }}</td>
+                <td>{{ p.fee_description }}</td>
+                <td>${{ '%.2f'|format(p.amount) }}</td>
+                <td>{{ p.payment_method or '—' }}</td>
+                <td>{{ p.reference_no or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state" style="padding:1.5rem;">No payments recorded.</p>
+    {% endif %}
+</div>
+{% endblock %}

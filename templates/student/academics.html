@@ -1,0 +1,103 @@
+{% extends "student/layout.html" %}
+{% block title %}Results & CGPA{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>Academic Results</h1>
+    <p>Semester results and cumulative CGPA</p>
+</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">CGPA</div>
+        <div class="stat-value emerald">{{ cgpa }}</div>
+        <div class="stat-footnote">Cumulative Grade Point Average</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Credits Earned</div>
+        <div class="stat-value">{{ total_credits }}</div>
+        <div class="stat-footnote">of {{ degree_credits_required }} degree credits</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Semesters</div>
+        <div class="stat-value">{{ semester_records|length }}</div>
+        <div class="stat-footnote">On your transcript</div>
+    </div>
+</div>
+
+<div class="glass-card degree-progress-card" style="margin-bottom:1.25rem;">
+    <div class="degree-progress-header">
+        <span class="glass-card-title">Degree Completion</span>
+        <span class="degree-progress-pct">{{ [((total_credits / degree_credits_required) * 100)|round(1), 100]|min }}%</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" data-progress="{{ [((total_credits / degree_credits_required) * 100)|round(1), 100]|min }}"></div>
+    </div>
+</div>
+
+{% if semester_records %}
+{% for sem in semester_records %}
+<div class="glass-card semester-result-card">
+    <div class="semester-result-header">
+        <div>
+            <h2 class="glass-card-title">{{ sem.semester_name }}</h2>
+            <p class="semester-result-meta">
+                {{ sem.courses|length }} course(s) · {{ sem.credits_attempted }} credits attempted
+                {% if sem.credits_earned %} · {{ sem.credits_earned }} credits earned{% endif %}
+            </p>
+        </div>
+        <div class="semester-result-badges">
+            {% if sem.is_active %}<span class="badge badge-violet">Current Semester</span>{% endif %}
+            {% if sem.sgpa is not none %}
+            <span class="badge badge-emerald semester-gpa-badge">SGPA {{ sem.sgpa }}</span>
+            {% elif sem.in_progress %}
+            <span class="badge badge-blue">In Progress</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Course Title</th>
+                    <th>Credits</th>
+                    <th>Grade</th>
+                    <th>Grade Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in sem.courses %}
+                <tr>
+                    <td><strong>{{ course.code }}</strong></td>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.credits }}</td>
+                    <td>
+                        {% if course.grade %}
+                        <span class="badge badge-emerald">{{ course.grade }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ course.grade_points if course.grade_points is not none else '—' }}</td>
+                    <td>
+                        {% if course.status == 'completed' %}
+                        <span class="badge badge-blue">Completed</span>
+                        {% elif course.status == 'enrolled' %}
+                        <span class="badge badge-violet">In Progress</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="glass-card">
+    <div class="empty-state">
+        <p>No academic records on file. Enroll in and complete courses to build your transcript.</p>
+        <a href="{{ url_for('student_courses') }}" class="btn btn-primary" style="margin-top:1rem;">Register for Courses</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

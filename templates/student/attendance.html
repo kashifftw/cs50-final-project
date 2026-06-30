@@ -1,0 +1,46 @@
+{% extends "student/layout.html" %}
+{% block title %}Attendance{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>Attendance</h1>
+    <p>{% if semester %}Attendance for {{ semester.name }}{% else %}No active semester{% endif %}</p>
+</div>
+
+{% if records %}
+<div class="glass-card" style="padding:0;overflow:hidden;">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Course</th>
+                <th>Instructor</th>
+                <th>Sessions</th>
+                <th>Present</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in records %}
+            <tr>
+                <td><strong>{{ row.code }}</strong><br><span style="color:var(--text-muted);font-size:0.875rem;">{{ row.title }}</span></td>
+                <td>{{ row.instructor_name or '—' }}</td>
+                <td>{{ row.total_sessions }}</td>
+                <td>{{ row.present }}</td>
+                <td>
+                    {% if row.percentage >= 75 %}
+                    <span class="badge badge-emerald">{{ row.percentage }}%</span>
+                    {% elif row.percentage >= 60 %}
+                    <span class="badge badge-amber">{{ row.percentage }}%</span>
+                    {% else %}
+                    <span class="badge badge-red">{{ row.percentage }}%</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="glass-card"><p class="empty-state">No attendance records for your enrolled courses yet.</p></div>
+{% endif %}
+{% endblock %}
