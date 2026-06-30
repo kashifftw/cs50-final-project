@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% set hide_sidebar = true %}
+
+{% block title %}Admin Sign In{% endblock %}
+
+{% block auth_content %}
+<div class="auth-shell">
+    <div class="auth-panel-left">
+        <div class="brand-icon" style="margin-bottom:1.5rem;">ERP</div>
+        <h1>Admin Console</h1>
+        <p>Manage students, courses, enrollments, grades, and portal sections.</p>
+    </div>
+    <div class="auth-panel-right">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div style="width:100%;max-width:400px;margin-bottom:1rem;">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">ERP</div>
+                <h1 class="auth-title">Admin sign in</h1>
+                <p class="auth-subtitle">Username and password</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('admin_login') }}" id="admin-login-form" novalidate>
+                <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-input" type="text" id="username" name="username" autocomplete="username" required>
+                    <div class="form-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-input" type="password" id="password" name="password" autocomplete="current-password" required>
+                    <div class="form-error"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.25rem;">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="{{ url_for('login') }}">← Student sign in</a>
+            </div>
+
+            <div class="auth-demo-box">
+                <strong>Demo admin</strong>
+                admin / admin123
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

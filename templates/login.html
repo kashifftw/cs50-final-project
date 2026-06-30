@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% set hide_sidebar = true %}
+
+{% block title %}Student Sign In{% endblock %}
+
+{% block auth_content %}
+<div class="auth-shell">
+    <div class="auth-panel-left">
+        <div class="brand-icon" style="margin-bottom:1.5rem;">ERP</div>
+        <h1>{{ portal_name }}</h1>
+        <p>Sign in with the roll number and default password issued by the university at enrollment.</p>
+        <div class="auth-institution">Office of the Registrar</div>
+    </div>
+    <div class="auth-panel-right">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div style="width:100%;max-width:400px;margin-bottom:1rem;">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">ERP</div>
+                <h1 class="auth-title">Student sign in</h1>
+                <p class="auth-subtitle">Roll number or university email</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('login') }}" id="login-form" novalidate>
+                <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
+                <div class="form-group">
+                    <label class="form-label" for="roll_number">Roll number or email</label>
+                    <input class="form-input" type="text" id="roll_number" name="roll_number"
+                           placeholder="2024-F-001 or you@university.edu"
+                           value="{{ form_roll_number|default('') }}" required>
+                    <div class="form-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-input" type="password" id="password" name="password" autocomplete="current-password" required>
+                    <div class="form-error"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top:0.25rem;">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="{{ url_for('forgot_password') }}">Forgot password?</a><br>
+                <span style="margin-top:0.5rem;display:inline-block;color:var(--text-muted);font-size:0.8125rem;">
+                    New students: accounts are created by the registrar — no self sign-up.
+                </span><br>
+                <span style="margin-top:0.5rem;display:inline-block;">Admin? <a href="{{ url_for('admin_login') }}">Admin sign in</a></span>
+            </div>
+
+            <div class="auth-demo-box">
+                <strong>Demo account</strong>
+                Roll: 2024-F-001 · Email: jsmith@university.edu · Password: student123
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}
