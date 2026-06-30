@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Attendance{% endblock %}
+{% block page_title %}Attendance Records{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Record and review attendance by course</p>{% endblock %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block content %}
+<div class="glass-card" style="margin-bottom:1rem;">
+    <label class="form-label" for="course-select">Course</label>
+    <select class="form-select" id="course-select" style="max-width:400px;">
+        <option value="">Select a course</option>
+        {% for c in courses %}
+        <option value="{{ c.id }}">{{ c.code }} — {{ c.title }} ({{ c.instructor_name or 'TBA' }})</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="glass-card" id="attendance-panel" style="display:none;">
+    <h2 class="glass-card-title" style="margin-bottom:1rem;">Record attendance</h2>
+    <form id="attendance-form" class="form-row" style="align-items:flex-end;margin-bottom:1rem;">
+        <input type="hidden" id="att-enrollment-id">
+        <div class="form-group"><label class="form-label">Student enrollment</label><select class="form-select" id="att-student-select"></select></div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="att-date" required></div>
+        <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-select" id="att-status"><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option></select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <div id="attendance-roster"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin-attendance.js') }}"></script>{% endblock %}

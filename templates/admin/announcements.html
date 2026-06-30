@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Broadcast messages to the university community</p>{% endblock %}
+
+{% block sidebar_nav %}
+{% include "admin/_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="content-grid two-col">
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title" id="ann-form-title">Publish Announcement</h2></div>
+        <form id="announcement-form">
+            <input type="hidden" id="ann-id" value="">
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                <input class="form-input" id="ann-title" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Content</label>
+                <textarea class="form-textarea" id="ann-content" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Audience</label>
+                <select class="form-select" id="ann-audience">
+                    <option value="all">Everyone</option>
+                    <option value="students">Students</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+                <button type="submit" class="btn btn-primary" id="ann-submit-btn">Publish</button>
+                <button type="button" class="btn btn-ghost" id="ann-cancel-edit" style="display:none;">Cancel Edit</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Recent Announcements</h2></div>
+        <div id="announcement-list">
+        {% for ann in announcements %}
+        <div class="announcement-item" data-ann-id="{{ ann.id }}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+                <div class="announcement-title">{{ ann.title }}</div>
+                <div style="display:flex;gap:0.375rem;align-items:center;">
+                    <span class="badge badge-blue">{{ ann.audience }}</span>
+                    <button class="btn btn-ghost btn-sm" data-edit-ann='{{ {"id": ann.id, "title": ann.title, "content": ann.content, "audience": ann.audience} | tojson }}'>Edit</button>
+                    <button class="btn btn-danger btn-sm" data-delete-ann="{{ ann.id }}">Delete</button>
+                </div>
+            </div>
+            <div class="announcement-body">{{ ann.content }}</div>
+            <div class="announcement-meta">{{ ann.created_at }} · {{ ann.author_name }}</div>
+        </div>
+        {% else %}
+        <p class="empty-state">No announcements yet.</p>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('announcement-form');
+    const annId = document.getElementById('ann-id');
+    const formTitle = document.getElementById('ann-form-title');
+    const submitBtn = document.getElementById('ann-submit-btn');
+    const cancelBtn = document.getElementById('ann-cancel-edit');
+
+    const resetForm = () => {
+        annId.value = '';
+        form.reset();
+        formTitle.textContent = 'Publish Announcement';
+        submitBtn.textContent = 'Publish';
+        cancelBtn.style.display = 'none';
+    };
+
+    cancelBtn.addEventListener('click', resetForm);
+
+    document.querySelectorAll('[data-edit-ann]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const ann = JSON.parse(btn.dataset.editAnn);
+            annId.value = ann.id;
+            document.getElementById('ann-title').value = ann.title;
+            document.getElementById('ann-content').value = ann.content;
+            document.getElementById('ann-audience').value = ann.audience;
+            formTitle.textContent = 'Edit Announcement';
+            submitBtn.textContent = 'Save Changes';
+            cancelBtn.style.display = 'inline-flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    document.querySelectorAll('[data-delete-ann]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Delete this announcement?')) return;
+            try {
+                const data = await UniERP.apiFetch(`/api/admin/announcements/${btn.dataset.deleteAnn}`, { method: 'DELETE' });
+                UniERP.showToast(data.message, 'success');
+                setTimeout(() => location.reload(), 800);
+            } catch (err) {
+                UniERP.showToast(err.message, 'error');
+            }
+        });
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            title: document.getElementById('ann-title').value.trim(),
+            content: document.getElementById('ann-content').value.trim(),
+            audience: document.getElementById('ann-audience').value,
+        };
+
+        try {
+            const isEdit = Boolean(annId.value);
+            const data = await UniERP.apiFetch(
+                isEdit ? `/api/admin/announcements/${annId.value}` : '/api/admin/announcements',
+                { method: isEdit ? 'PUT' : 'POST', body: JSON.stringify(payload) }
+            );
+            UniERP.showToast(data.message, 'success');
+            setTimeout(() => location.reload(), 800);
+        } catch (err) {
+            UniERP.showToast(err.message, 'error');
+        }
+    });
+});
+</script>
+{% endblock %}

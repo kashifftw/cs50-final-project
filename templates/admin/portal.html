@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}Portal Sections{% endblock %}
+{% block page_title %}Student Portal Sections{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Enable or disable each section of the student interface</p>{% endblock %}
+
+{% block sidebar_nav %}
+{% include "admin/_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+    <div class="glass-card-header"><h2 class="glass-card-title">Section Visibility</h2></div>
+    <form id="portal-sections-form">
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Section</th><th>Label</th><th>Enabled</th></tr></thead>
+                <tbody>
+                    {% for key, section in portal_sections.items() %}
+                    <tr data-section="{{ key }}">
+                        <td><strong>{{ key }}</strong></td>
+                        <td><input class="form-input" name="label_{{ key }}" value="{{ section.label }}"></td>
+                        <td><input type="checkbox" name="enabled_{{ key }}" {% if section.enabled %}checked{% endif %}></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Save Sections</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('portal-sections-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const sections = {};
+    form.querySelectorAll('tr[data-section]').forEach((row) => {
+        const key = row.dataset.section;
+        sections[key] = {
+            label: form.querySelector(`[name="label_${key}"]`).value.trim(),
+            enabled: form.querySelector(`[name="enabled_${key}"]`).checked,
+        };
+    });
+    try {
+        const data = await UniERP.apiFetch('/api/admin/portal-sections', {
+            method: 'PUT',
+            body: JSON.stringify({ sections }),
+        });
+        UniERP.showToast(data.message, 'success');
+    } catch (err) {
+        UniERP.showToast(err.message, 'error');
+    }
+});
+</script>
+{% endblock %}

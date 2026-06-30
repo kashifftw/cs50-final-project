@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}Fees{% endblock %}
+{% block page_title %}Fee Management{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Fee structure, student charges, and payments</p>{% endblock %}
+{% block sidebar_nav %}{% include "admin/_sidebar.html" %}{% endblock %}
+
+{% block content %}
+{% if overdue_students %}
+<div class="alert alert-error" style="margin-bottom:1rem;">
+    <strong>{{ overdue_students|length }} student(s)</strong> have overdue fees.
+</div>
+{% endif %}
+
+<div class="content-grid two-col">
+    <div class="glass-card">
+        <h2 class="glass-card-title">Fee structure</h2>
+        <form id="fee-item-form" style="margin-top:1rem;">
+            <div class="form-group"><label class="form-label">Name</label><input class="form-input" name="name" required></div>
+            <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-input" type="number" step="0.01" name="amount" required></div>
+            <div class="form-group"><label class="form-label">Semester</label>
+                <select class="form-select" name="semester_id"><option value="">Any</option>{% for s in semesters %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Add fee item</button>
+        </form>
+        <ul style="margin-top:1rem;font-size:0.875rem;">
+            {% for item in fee_items %}<li>{{ item.name }} — ${{ '%.2f'|format(item.amount) }}</li>{% endfor %}
+        </ul>
+    </div>
+    <div class="glass-card">
+        <h2 class="glass-card-title">Assign fee to student</h2>
+        <form id="assign-fee-form" style="margin-top:1rem;">
+            <div class="form-group"><label class="form-label">Student</label>
+                <select class="form-select" name="student_id" required>{% for s in students %}<option value="{{ s.id }}">{{ s.student_number }} — {{ s.first_name }} {{ s.last_name }}</option>{% endfor %}</select>
+            </div>
+            <div class="form-group"><label class="form-label">Description</label><input class="form-input" name="description" required></div>
+            <div class="form-group"><label class="form-label">Amount</label><input class="form-input" type="number" step="0.01" name="amount" required></div>
+            <div class="form-group"><label class="form-label">Due date</label><input class="form-input" type="date" name="due_date" required></div>
+            <button type="submit" class="btn btn-primary">Assign fee</button>
+        </form>
+    </div>
+</div>
+
+{% if overdue_students %}
+<div class="glass-card" style="margin-top:1.25rem;padding:0;overflow:hidden;">
+    <div class="glass-card-header" style="padding:1rem;"><h2 class="glass-card-title">Overdue students</h2></div>
+    <table class="data-table">
+        <thead><tr><th>Student</th><th>Overdue items</th><th>Amount due</th></tr></thead>
+        <tbody>
+            {% for s in overdue_students %}
+            <tr><td>{{ s.student_number }} — {{ s.first_name }} {{ s.last_name }}</td><td>{{ s.overdue_count }}</td><td>${{ '%.2f'|format(s.total_overdue) }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin-fees.js') }}"></script>{% endblock %}
