@@ -1,0 +1,38 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# Database (generated locally)
+university.db
+*.db-journal
+
+# Uploads (runtime user content)
+static/uploads/profiles/*
+!static/uploads/profiles/.gitkeep
+
+# OS and editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# Screenshots and misc artifacts
+Screenshot*.png
+*.screenshot.*
+
+# Logs
+*.log
