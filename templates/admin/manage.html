@@ -1,0 +1,219 @@
+{% extends "layout.html" %}
+{% block title %}Courses{% endblock %}
+{% block page_title %}Course Management{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Manage courses, semesters, departments, and credit hour settings</p>{% endblock %}
+
+{% block sidebar_nav %}
+{% include "admin/_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div id="registrar-data"
+     data-departments='{{ departments | tojson }}'
+     data-semesters='{{ semesters | tojson }}'
+     hidden></div>
+
+<div class="stats-grid" id="admin-stats">
+    <div class="stat-card"><div class="stat-label">Students</div><div class="stat-value" data-stat="students">{{ stats.students }}</div></div>
+    <div class="stat-card"><div class="stat-label">Courses</div><div class="stat-value" data-stat="courses">{{ stats.courses }}</div></div>
+    <div class="stat-card"><div class="stat-label">Active Enrollments</div><div class="stat-value emerald" data-stat="enrollments">{{ stats.enrollments }}</div></div>
+</div>
+
+<div class="content-grid two-col">
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Portal Settings</h2></div>
+        <form id="settings-form">
+            <div class="form-group">
+                <label class="form-label">Portal Name</label>
+                <input class="form-input" name="portal_name" placeholder="Campus Portal">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Default Degree Credits</label>
+                <input class="form-input" type="number" name="degree_credits_required" min="1" value="120">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Max Credit Hours / Semester</label>
+                <input class="form-input" type="number" name="max_credit_hours_per_semester" min="1" value="18">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Registration Message</label>
+                <textarea class="form-textarea" name="registration_message" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Save Settings</button>
+        </form>
+    </div>
+
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Departments</h2></div>
+        <div id="department-list"><div class="loading-overlay"><span class="loading-spinner"></span></div></div>
+        <form id="new-department-form" style="margin-top:1rem;border-top:1px solid var(--glass-border);padding-top:1rem;">
+            <div class="form-row">
+                <div class="form-group"><input class="form-input" name="code" placeholder="Code (e.g. CS)" required></div>
+                <div class="form-group"><input class="form-input" name="name" placeholder="Department name" required></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Add Department</button>
+        </form>
+    </div>
+</div>
+
+<div class="content-grid two-col" style="margin-top:1.25rem;">
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Degree Programs</h2></div>
+        <div id="program-list"><div class="loading-overlay"><span class="loading-spinner"></span></div></div>
+        <form id="new-program-form" style="margin-top:1rem;border-top:1px solid var(--glass-border);padding-top:1rem;">
+            <div class="form-row">
+                <div class="form-group"><input class="form-input" name="name" placeholder="Program name" required></div>
+                <div class="form-group">
+                    <select class="form-select" name="department_id" id="program_department_id">
+                        <option value="">— Department —</option>
+                        {% for dept in departments %}<option value="{{ dept.id }}">{{ dept.code }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group"><input class="form-input" type="number" name="credits_required" value="120" min="1" required></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Add Program</button>
+        </form>
+    </div>
+
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Semester Control</h2></div>
+        {% if semester %}
+        <p style="font-size:0.875rem;margin-bottom:1rem;">Active: <strong>{{ semester.name }}</strong>
+            · Registration: {% if semester.registration_open %}<span class="badge badge-emerald">Open</span>{% else %}<span class="badge badge-red">Closed</span>{% endif %}
+        </p>
+        {% endif %}
+        <div class="table-wrap">
+            <table class="data-table" id="semester-table">
+                <thead><tr><th>Semester</th><th>Active</th><th>Registration</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for sem in semesters %}
+                    <tr>
+                        <td>{{ sem.name }}</td>
+                        <td>{% if sem.is_active %}<span class="badge badge-blue">Active</span>{% else %}—{% endif %}</td>
+                        <td>{% if sem.registration_open %}<span class="badge badge-emerald">Open</span>{% else %}<span class="badge badge-red">Closed</span>{% endif %}</td>
+                        <td style="display:flex;gap:0.375rem;flex-wrap:wrap;">
+                            <button class="btn btn-ghost btn-sm" data-set-active="{{ sem.id }}">Set Active</button>
+                            <button class="btn btn-ghost btn-sm" data-toggle-reg="{{ sem.id }}">Toggle Reg.</button>
+                            <button class="btn btn-ghost btn-sm" data-edit-sem="{{ sem.id }}" data-name="{{ sem.name }}" data-start="{{ sem.start_date }}" data-end="{{ sem.end_date }}">Edit</button>
+                            <button class="btn btn-danger btn-sm" data-delete-sem="{{ sem.id }}">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <form id="new-semester-form" style="margin-top:1.25rem;border-top:1px solid var(--glass-border);padding-top:1rem;">
+            <h3 style="font-size:0.875rem;margin-bottom:0.75rem;">Add Semester</h3>
+            <div class="form-row">
+                <div class="form-group"><input class="form-input" name="name" placeholder="e.g. Fall 2026" required></div>
+                <div class="form-group"><input class="form-input" type="date" name="start_date" required></div>
+                <div class="form-group"><input class="form-input" type="date" name="end_date" required></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Create Semester</button>
+        </form>
+    </div>
+</div>
+
+<div class="content-grid two-col" style="margin-top:1.25rem;">
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Create Course</h2></div>
+        <form id="new-course-form">
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Code</label><input class="form-input" name="code" placeholder="CS301" required></div>
+                <div class="form-group">
+                    <label class="form-label">Course type</label>
+                    <select class="form-select" name="has_lab" required>
+                        <option value="0">Theory only (2 credit hours)</option>
+                        <option value="1" selected>Theory + Lab (3 credit hours)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Title</label><input class="form-input" name="title" required></div>
+            <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" name="description" rows="2"></textarea></div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select class="form-select" name="department_id" required>
+                        {% for dept in departments %}<option value="{{ dept.id }}">{{ dept.code }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Semester</label>
+                    <select class="form-select" name="semester_id" required>
+                        {% for sem in semesters %}<option value="{{ sem.id }}" {% if sem.is_active %}selected{% endif %}>{{ sem.name }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Instructor</label>
+                    <input class="form-input" name="instructor_name" placeholder="Instructor name">
+                </div>
+                <div class="form-group"><label class="form-label">Capacity</label><input class="form-input" type="number" name="capacity" value="30" required></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Schedule Days</label><input class="form-input" name="schedule_day" placeholder="Mon/Wed"></div>
+                <div class="form-group"><label class="form-label">Time</label><input class="form-input" name="schedule_time" placeholder="10:00–11:30"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Room</label><input class="form-input" name="room" placeholder="Building 101"></div>
+            <div class="form-group">
+                <label class="form-label" for="new-prerequisites">Prerequisites</label>
+                <select class="form-select" id="new-prerequisites" name="prerequisite_ids" multiple size="4"></select>
+                <p class="form-hint">Hold Ctrl/Cmd to select multiple courses.</p>
+            </div>
+            <button type="submit" class="btn btn-violet">Create Course</button>
+        </form>
+    </div>
+
+    <div class="glass-card">
+        <div class="glass-card-header">
+            <h2 class="glass-card-title">Course Catalog</h2>
+            <button class="btn btn-ghost btn-sm" id="refresh-courses">Refresh</button>
+        </div>
+        <div id="admin-course-list"><div class="loading-overlay"><span class="loading-spinner"></span></div></div>
+    </div>
+</div>
+
+<div id="edit-course-modal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <form class="glass-card" style="max-width:520px;width:100%;max-height:90vh;overflow:auto;">
+        <div class="glass-card-header"><h2 class="glass-card-title">Edit Course</h2></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Code</label><input class="form-input" name="code" required></div>
+            <div class="form-group">
+                <label class="form-label">Course type</label>
+                <select class="form-select" name="has_lab" required>
+                    <option value="0">Theory only (2 credit hours)</option>
+                    <option value="1">Theory + Lab (3 credit hours)</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group"><label class="form-label">Title</label><input class="form-input" name="title" required></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" name="description" rows="2"></textarea></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Department</label><select class="form-select" name="department_id" required></select></div>
+            <div class="form-group"><label class="form-label">Semester</label><select class="form-select" name="semester_id" required></select></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Instructor</label><input class="form-input" name="instructor_name"></div>
+            <div class="form-group"><label class="form-label">Capacity</label><input class="form-input" type="number" name="capacity" required></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Schedule Days</label><input class="form-input" name="schedule_day"></div>
+            <div class="form-group"><label class="form-label">Time</label><input class="form-input" name="schedule_time"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Room</label><input class="form-input" name="room"></div>
+        <div class="form-group">
+            <label class="form-label">Prerequisites</label>
+            <select class="form-select" name="prerequisite_ids" id="edit-prerequisites" multiple size="4"></select>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-ghost" id="edit-course-cancel">Cancel</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

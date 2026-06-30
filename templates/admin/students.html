@@ -1,0 +1,271 @@
+{% extends "layout.html" %}
+{% block title %}Students{% endblock %}
+{% block page_title %}Students{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Add, edit, and view student accounts</p>{% endblock %}
+
+{% block sidebar_nav %}
+{% include "admin/_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="content-grid two-col" style="margin-bottom:1.25rem;">
+    <div class="glass-card">
+        <div class="glass-card-header">
+            <h2 class="glass-card-title">Admission Sessions</h2>
+            <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">Each session auto-assigns roll numbers (e.g. 2025-F-001)</p>
+        </div>
+        <div class="table-wrap" style="margin-bottom:1rem;">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Session</th><th>Next Roll</th><th>Students</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for session in admission_sessions %}
+                    <tr>
+                        <td><strong>{{ session.name }}</strong></td>
+                        <td>{{ session.year }}-{{ 'F' if session.season == 'fall' else 'S' }}-{{ '%03d'|format(session.next_roll_seq) }}</td>
+                        <td>{{ session.student_count }}</td>
+                        <td>
+                            {% if session.is_open %}
+                            <span class="badge badge-emerald">Open</span>
+                            {% else %}
+                            <span class="badge badge-red">Closed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-ghost btn-sm" data-toggle-session="{{ session.id }}">
+                                {% if session.is_open %}Close{% else %}Open{% endif %}
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <form id="new-admission-session-form" class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="session_season">Season</label>
+                <select class="form-select" id="session_season" name="season" required>
+                    <option value="fall">Fall</option>
+                    <option value="spring">Spring</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="session_year">Year</label>
+                <input class="form-input" type="number" id="session_year" name="year" min="2000" max="2100" required>
+            </div>
+            <div class="form-group" style="align-self:end;">
+                <button type="submit" class="btn btn-primary btn-sm">Create Session</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="glass-card">
+        <div class="glass-card-header">
+            <h2 class="glass-card-title">Bulk Import (CSV)</h2>
+            <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">Import many admitted students in one step</p>
+        </div>
+        <form id="bulk-import-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label" for="bulk_session_id">Admission Session</label>
+                <select class="form-select" id="bulk_session_id" name="admission_session_id" required>
+                    <option value="">Select Fall or Spring session</option>
+                    {% for session in admission_sessions if session.is_open %}
+                    <option value="{{ session.id }}">{{ session.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="bulk_password">Default Password</label>
+                <input class="form-input" type="password" id="bulk_password" name="default_password" minlength="8" placeholder="Same password for all imported students" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="csv_file">CSV File</label>
+                <input class="form-input" type="file" id="csv_file" name="csv_file" accept=".csv,text/csv" required>
+                <p class="form-hint">Columns: <code>first_name</code>, <code>last_name</code>, <code>email</code>, <code>program</code>, <code>department_code</code> (optional)</p>
+            </div>
+            <button type="submit" class="btn btn-violet">Import Students</button>
+        </form>
+        <div id="bulk-import-results" style="display:none;margin-top:1rem;"></div>
+    </div>
+</div>
+
+<div class="glass-card" style="margin-bottom:1.25rem;">
+    <div class="glass-card-header">
+        <h2 class="glass-card-title">Add One Student</h2>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">Manual entry or auto roll number from a session</p>
+    </div>
+    <form id="add-student-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="admission_session_id">Admission Session</label>
+                <select class="form-select" id="admission_session_id" name="admission_session_id">
+                    <option value="">— Optional / manual roll —</option>
+                    {% for session in admission_sessions if session.is_open %}
+                    <option value="{{ session.id }}">{{ session.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group" style="align-self:end;">
+                <label class="form-label" style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                    <input type="checkbox" id="auto_roll" name="auto_roll" checked>
+                    Auto-generate roll number
+                </label>
+            </div>
+        </div>
+        <div class="form-row" id="manual-roll-row" style="display:none;">
+            <div class="form-group">
+                <label class="form-label" for="roll_number">Roll Number</label>
+                <input class="form-input" id="roll_number" name="roll_number" placeholder="e.g. 2025-F-042">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="enrollment_year">Batch Year</label>
+                <input class="form-input" type="number" id="enrollment_year" name="enrollment_year" min="2000" max="2100">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="first_name">First Name</label>
+                <input class="form-input" id="first_name" name="first_name" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="last_name">Last Name</label>
+                <input class="form-input" id="last_name" name="last_name" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input class="form-input" type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Initial Password</label>
+                <input class="form-input" type="password" id="password" name="password" minlength="8" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="program">Degree Program</label>
+                <select class="form-select" id="program" name="program">
+                    <option value="">— Select degree —</option>
+                    {% for degree in degree_options %}
+                    <option value="{{ degree }}">{{ degree }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="department_id">Department</label>
+                <select class="form-select" id="department_id" name="department_id">
+                    <option value="">— Optional —</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.code }} — {{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Student</button>
+    </form>
+</div>
+
+<div class="glass-card">
+    <div class="glass-card-header"><h2 class="glass-card-title">All Accounts</h2></div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>Roll Number</th><th>Email</th><th>Role</th><th>Name</th><th>Program</th><th>Admission</th><th>Joined</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.student_number or u.username }}</strong></td>
+                    <td>{{ u.email }}</td>
+                    <td><span class="badge badge-emerald">{{ u.role }}</span></td>
+                    <td>{{ u.student_name or '—' }}</td>
+                    <td>{{ u.program or '—' }}</td>
+                    <td>{{ u.admission_session or '—' }}</td>
+                    <td>{{ u.created_at }}</td>
+                    <td>
+                        {% if u.role == 'student' and u.student_id %}
+                        <button class="btn btn-ghost btn-sm" data-view-student="{{ u.student_id }}">View</button>
+                        <button class="btn btn-ghost btn-sm" data-edit-student='{{ {
+                            "id": u.student_id,
+                            "student_number": u.student_number,
+                            "first_name": u.first_name,
+                            "last_name": u.last_name,
+                            "email": u.email,
+                            "program": u.program,
+                            "enrollment_year": u.enrollment_year,
+                            "department_id": u.department_id,
+                            "admission_session_id": u.admission_session_id,
+                            "max_credit_hours": u.max_credit_hours
+                        } | tojson }}'>Edit</button>
+                        <button class="btn btn-danger btn-sm" data-delete-student="{{ u.student_id }}">Remove</button>
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="edit-student-modal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <form id="edit-student-form" class="glass-card" style="max-width:520px;width:100%;max-height:90vh;overflow:auto;">
+        <div class="glass-card-header"><h2 class="glass-card-title">Edit Student</h2></div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">Roll Number</label><input class="form-input" name="roll_number" required></div>
+            <div class="form-group"><label class="form-label">Batch Year</label><input class="form-input" type="number" name="enrollment_year" min="2000" max="2100"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" name="first_name" required></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" name="last_name" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" name="email" required></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Program</label>
+                <select class="form-select" name="program" id="edit-program-select">
+                    <option value="">— Select —</option>
+                    {% for degree in degree_options %}<option value="{{ degree }}">{{ degree }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Department</label>
+                <select class="form-select" name="department_id">
+                    <option value="">— Optional —</option>
+                    {% for dept in departments %}<option value="{{ dept.id }}">{{ dept.code }}</option>{% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">New Password (optional)</label>
+            <input class="form-input" type="password" name="password" minlength="8" placeholder="Leave blank to keep current">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Max credit hours / semester</label>
+            <input class="form-input" type="number" name="max_credit_hours" min="1" placeholder="Leave blank for default (18)">
+            <p class="form-hint">Override the semester credit limit for this student (e.g. 21 for graduating seniors).</p>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-ghost" id="edit-student-cancel">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div id="view-student-modal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <div class="glass-card" style="max-width:760px;width:100%;max-height:90vh;overflow:auto;">
+        <div class="glass-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 class="glass-card-title" id="view-student-title">Student Profile</h2>
+            <button type="button" class="btn btn-ghost btn-sm" id="view-student-close">Close</button>
+        </div>
+        <div id="view-student-content">
+            <div class="loading-overlay"><span class="loading-spinner"></span></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin-users.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block title %}Admin{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}<p class="page-subtitle">Key university statistics at a glance</p>{% endblock %}
+
+{% block sidebar_nav %}
+{% include "admin/_sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid" id="admin-stats">
+    <div class="stat-card"><div class="stat-label">Students</div><div class="stat-value" data-stat="students">{{ stats.students }}</div></div>
+    <div class="stat-card"><div class="stat-label">Courses</div><div class="stat-value" data-stat="courses">{{ stats.courses }}</div></div>
+    <div class="stat-card"><div class="stat-label">Pending Fees</div><div class="stat-value amber" data-stat="pending_fees">{{ stats.pending_fees }}</div></div>
+    <div class="stat-card"><div class="stat-label">Recent Enrollments</div><div class="stat-value emerald" data-stat="recent_enrollments">{{ stats.recent_enrollments }}</div></div>
+</div>
+
+<div class="glass-card" style="margin-top:1.25rem;">
+    <div class="glass-card-header"><h2 class="glass-card-title">Recent Enrollments</h2></div>
+    {% if recent_enrollments %}
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr><th>Student</th><th>Course</th><th>Semester</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+                {% for row in recent_enrollments %}
+                <tr>
+                    <td><strong>{{ row.student_number }}</strong> — {{ row.first_name }} {{ row.last_name }}</td>
+                    <td>{{ row.code }} · {{ row.title }}</td>
+                    <td>{{ row.semester_name }}</td>
+                    <td><span class="badge badge-blue">{{ row.status }}</span></td>
+                    <td>{{ row.enrolled_at[:10] if row.enrolled_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty-state">No enrollments yet.</p>
+    {% endif %}
+</div>
+
+<div class="content-grid two-col" style="margin-top:1.25rem;">
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Quick Links</h2></div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            <a href="{{ url_for('admin_students') }}" class="btn btn-ghost">Manage Students</a>
+            <a href="{{ url_for('admin_manage') }}" class="btn btn-ghost">Manage Courses</a>
+            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-ghost">Enrollments & Grades</a>
+            <a href="{{ url_for('admin_fees') }}" class="btn btn-ghost">Fees</a>
+            <a href="{{ url_for('admin_announcements') }}" class="btn btn-ghost">Announcements</a>
+        </div>
+        {% if semester %}
+        <p style="font-size:0.875rem;margin-top:1rem;color:var(--text-muted);">Active semester: <strong>{{ semester.name }}</strong></p>
+        {% endif %}
+    </div>
+
+    <div class="glass-card">
+        <div class="glass-card-header"><h2 class="glass-card-title">Student Portal</h2></div>
+        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">Toggle which sections students can access.</p>
+        <ul style="font-size:0.875rem;line-height:1.8;">
+            {% for key, section in portal_sections.items() %}
+            <li>
+                <strong>{{ section.label }}</strong>
+                {% if section.enabled %}<span class="badge badge-emerald">On</span>{% else %}<span class="badge badge-red">Off</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('admin_portal') }}" class="btn btn-primary btn-sm" style="margin-top:1rem;">Manage Sections</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
