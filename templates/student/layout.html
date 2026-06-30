@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Portal{% endblock %} — {{ portal_name }}</title>
+    <script>
+        (function () {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.documentElement.setAttribute('data-portal', 'student');
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/aurora-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student-portal.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="student-portal-body">
+    <header class="portal-topbar">
+        <div class="portal-topbar-left">
+            <div class="portal-logo-mark">ERP</div>
+            <div class="portal-university-name">{{ portal_name }}</div>
+        </div>
+        <div class="portal-topbar-right">
+            {% if student_profile is defined and student_profile %}
+            <p class="portal-welcome">Welcome, <strong>{{ student_profile.first_name }}</strong></p>
+            {% endif %}
+            <button type="button" class="theme-toggle portal-theme-toggle" aria-label="Switch to light mode" title="Light mode" hidden>
+                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                </svg>
+                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M3 12h2m14 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 7a5 5 0 100 10 5 5 0 000-10z"/>
+                </svg>
+            </button>
+            <div style="position:relative;">
+                <button class="notification-bell portal-notify" id="notification-bell" aria-label="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+                    </svg>
+                    {% if unread_notifications > 0 %}
+                    <span class="notification-badge">{{ unread_notifications }}</span>
+                    {% endif %}
+                </button>
+                <div id="notification-dropdown" class="glass-card portal-notify-dropdown" style="display:none;">
+                    <div id="notification-panel"><p class="empty-state" style="padding:1rem;">Loading…</p></div>
+                </div>
+            </div>
+            {% if student_profile is defined and student_profile %}
+            <div class="portal-profile-menu" id="portal-profile-menu">
+                <button type="button" class="portal-profile-btn" id="profile-menu-btn" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                    {% if student_profile.profile_picture %}
+                    <img src="{{ url_for('static', filename=student_profile.profile_picture) }}" alt="" class="portal-profile-avatar-img">
+                    {% else %}
+                    <span class="portal-profile-avatar" aria-hidden="true">{{ student_profile.first_name[0] }}{{ student_profile.last_name[0] }}</span>
+                    {% endif %}
+                    <span class="portal-profile-name">{{ student_profile.first_name }}</span>
+                    <svg class="portal-profile-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
+                <div class="portal-profile-dropdown" id="profile-dropdown">
+                    <div class="portal-profile-dropdown-header">
+                        <strong>{{ student_profile.first_name }} {{ student_profile.last_name }}</strong>
+                        <span>{{ student_profile.student_number }}</span>
+                        {% if student_profile.program %}
+                        <span class="portal-profile-program">{{ student_profile.program }}</span>
+                        {% endif %}
+                    </div>
+                    <nav class="portal-profile-dropdown-nav" aria-label="Account">
+                        <a href="{{ url_for('student_profile') }}" class="portal-profile-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M20 21a8 8 0 00-16 0M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+                            My Profile
+                        </a>
+                        <a href="{{ url_for('student_academics') }}" class="portal-profile-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422A12.083 12.083 0 0121 13.5c0 2.485-4.03 4.5-9 4.5s-9-2.015-9-4.5c0-.943.38-1.823 1.04-2.578L12 14z"/></svg>
+                            Academics
+                        </a>
+                        <a href="{{ url_for('student_fees') }}" class="portal-profile-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                            Fees
+                        </a>
+                        <a href="{{ url_for('student_courses') }}" class="portal-profile-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                            Course Registration
+                        </a>
+                        <div class="portal-profile-divider" role="separator"></div>
+                        <a href="{{ url_for('logout') }}" class="portal-profile-link portal-profile-logout">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                            Sign out
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            {% else %}
+            <div class="portal-user-chip">
+                <span class="portal-user-id">{{ session.username }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="portal-shell">
+        <aside class="portal-icon-nav" id="portal-icon-nav">
+            {% include "student/_icon_nav.html" %}
+        </aside>
+
+        <main class="portal-main">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages portal-flash">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+
+            <footer class="portal-footer">© Copyright 2026 · Developed by ERP Team</footer>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+    <style>#notification-dropdown.open { display: block !important; }</style>
+</body>
+</html>

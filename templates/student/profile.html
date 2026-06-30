@@ -1,0 +1,68 @@
+{% extends "student/layout.html" %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="portal-inner-header">
+    <h1>My Profile</h1>
+    <p>Update your contact information and profile picture</p>
+</div>
+
+<div class="glass-card profile-card">
+    <form id="profile-form" enctype="multipart/form-data">
+        <div class="profile-header">
+            {% if student.profile_picture %}
+            <img src="{{ url_for('static', filename=student.profile_picture) }}" alt="Profile" class="profile-avatar-img">
+            {% else %}
+            <div class="profile-avatar">{{ student.first_name[0] }}{{ student.last_name[0] }}</div>
+            {% endif %}
+            <div>
+                <h2 class="profile-name">{{ student.first_name }} {{ student.last_name }}</h2>
+                <p class="profile-meta">{{ student.program or 'Undeclared' }}{% if student.department_name %} · {{ student.department_code }}{% endif %}</p>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label" for="profile_picture">Profile picture</label>
+            <input class="form-input" type="file" id="profile_picture" name="profile_picture" accept="image/*">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone</label>
+                <input class="form-input" type="tel" id="phone" name="phone" value="{{ student.phone or '' }}" placeholder="+1 555-0000">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Roll number</label>
+                <input class="form-input" type="text" value="{{ student.student_number }}" disabled>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="address">Address</label>
+            <textarea class="form-input" id="address" name="address" rows="2" placeholder="Campus or mailing address">{{ student.address or '' }}</textarea>
+        </div>
+
+        <dl class="profile-details">
+            <div class="profile-detail-row">
+                <dt>Email</dt>
+                <dd>{{ user.email }}</dd>
+            </div>
+            <div class="profile-detail-row">
+                <dt>Department</dt>
+                <dd>{{ student.department_name or '—' }}</dd>
+            </div>
+            <div class="profile-detail-row">
+                <dt>CGPA</dt>
+                <dd><span class="badge badge-emerald">{{ cgpa }}</span></dd>
+            </div>
+        </dl>
+
+        <button type="submit" class="btn btn-primary" id="profile-save-btn">Save changes</button>
+        <p id="profile-message" class="form-hint" style="margin-top:0.75rem;"></p>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/student-profile.js') }}"></script>
+{% endblock %}

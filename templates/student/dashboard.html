@@ -1,0 +1,167 @@
+{% extends "student/layout.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+<header class="dashboard-hero">
+    <div>
+        <h1 class="portal-page-title">Dashboard</h1>
+        <p class="portal-page-subtitle">Your academic overview for {{ semester.name if semester else 'this semester' }}</p>
+    </div>
+    {% if semester and semester.registration_open %}
+    <a href="{{ url_for('student_courses') }}" class="btn btn-primary dashboard-hero-cta">Register for courses</a>
+    {% endif %}
+</header>
+
+<div class="dash-stat-row">
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon-red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        </div>
+        <div>
+            <div class="dash-stat-label">Enrolled Semester</div>
+            <div class="dash-stat-value">{{ semester_short_name(semester.name) if semester else '—' }}</div>
+        </div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12V7H5a2 2 0 010-4h14v4"/><path d="M3 5v14a2 2 0 002 2h16v-5"/><path d="M18 12a2 2 0 100 4 2 2 0 000-4z"/></svg>
+        </div>
+        <div>
+            <div class="dash-stat-label">Current Credits</div>
+            <div class="dash-stat-value">{{ current_credits }}</div>
+        </div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+        </div>
+        <div>
+            <div class="dash-stat-label">CGPA</div>
+            <div class="dash-stat-value">{% if cgpa %}{{ cgpa }}{% else %}—{% endif %}</div>
+        </div>
+    </div>
+    <div class="dash-stat-card">
+        <div class="dash-stat-icon dash-stat-icon-brown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div>
+            <div class="dash-stat-label">Enrolled Courses</div>
+            <div class="dash-stat-value">{{ enrolled_count }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="widget-grid">
+    <section class="widget-card widget-card--progress">
+        <header class="widget-header widget-header-navy">
+            <span>Degree Progress</span>
+            <a href="{{ url_for('student_academics') }}" class="widget-link" aria-label="View academics">→</a>
+        </header>
+        <div class="widget-body widget-body-progress">
+            <div class="degree-progress-ring" style="--progress: {{ degree_progress }};">
+                <span class="degree-progress-value">{{ degree_progress }}%</span>
+            </div>
+            <p class="degree-progress-caption">
+                <strong>{{ completed_credits }}</strong> of <strong>{{ degree_credits_required }}</strong> credits completed
+            </p>
+        </div>
+    </section>
+
+    <section class="widget-card widget-card--announcements">
+        <header class="widget-header widget-header-purple">
+            <span>Announcements</span>
+            <a href="{{ url_for('student_dashboard') }}#announcements" class="widget-link">→</a>
+        </header>
+        <div class="widget-body widget-body-table">
+            {% if announcements %}
+            <div class="table-scroll">
+            <table class="widget-table widget-table--comfortable">
+                <thead><tr><th>Title</th><th>Date</th><th>From</th></tr></thead>
+                <tbody>
+                    {% for ann in announcements[:5] %}
+                    <tr>
+                        <td>{{ ann.title }}</td>
+                        <td>{{ ann.created_at[:10] if ann.created_at else '—' }}</td>
+                        <td>{{ ann.author_name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="widget-empty">No announcements.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="widget-card widget-card--calendar">
+        <header class="widget-header widget-header-blue">
+            <span>Upcoming Deadlines</span>
+        </header>
+        <div class="widget-body widget-body-table">
+            {% if upcoming_deadlines %}
+            <div class="table-scroll">
+            <table class="widget-table widget-table--comfortable">
+                <thead><tr><th>Deadline</th><th>Date</th></tr></thead>
+                <tbody>
+                    {% for item in upcoming_deadlines %}
+                    <tr><td>{{ item.title }}{% if item.description %}<br><small>{{ item.description }}</small>{% endif %}</td><td>{{ item.due_date }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="widget-empty">No upcoming deadlines.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="widget-card widget-card--courses">
+        <header class="widget-header widget-header-maroon">
+            <span>Current Courses</span>
+            <a href="{{ url_for('student_enrollments') }}" class="widget-link" aria-label="View enrollments">→</a>
+        </header>
+        <div class="widget-body widget-body-table">
+            {% if current_enrollments %}
+            <div class="table-scroll">
+            <table class="widget-table widget-table--comfortable">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Instructor</th>
+                        <th>Schedule</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in current_enrollments %}
+                    <tr>
+                        <td class="widget-table-course"><strong>{{ row.code }}</strong><span>{{ row.title }}</span></td>
+                        <td>{{ row.instructor_name or '—' }}</td>
+                        <td>{{ row.schedule_day or '—' }} {{ row.schedule_time or '' }}</td>
+                        <td><span class="badge badge-blue">{{ row.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="widget-empty">No courses enrolled.
+                {% if semester and semester.registration_open %}
+                <a href="{{ url_for('student_courses') }}">Register now</a>
+                {% endif %}
+            </p>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+{% if semester and semester.registration_open %}
+<div class="portal-reg-banner" id="announcements">
+    Registration is open for <strong>{{ semester.name }}</strong> — {{ offered_courses }} courses available.
+    <a href="{{ url_for('student_courses') }}" class="btn btn-primary btn-sm">Register</a>
+</div>
+{% endif %}
+</div>
+{% endblock %}
