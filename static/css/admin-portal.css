@@ -1,0 +1,108 @@
+/**
+ * Admin console — Aurora theme layout polish
+ */
+
+html[data-portal="admin"] body {
+    background: var(--portal-bg);
+    background-image: var(--portal-bg-image);
+    background-attachment: fixed;
+}
+
+html[data-portal="admin"] .main-content {
+    background: transparent;
+}
+
+html[data-portal="admin"] .page-header {
+    background: rgba(15, 17, 23, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom-color: rgba(167, 139, 250, 0.12);
+}
+
+html[data-portal="admin"] .page-body {
+    background: transparent;
+}
+
+html[data-portal="admin"] .sidebar {
+    background: var(--sidebar-bg);
+    border-right-color: var(--sidebar-border);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+}
+
+html[data-portal="admin"] .brand-icon {
+    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
+    box-shadow: 0 2px 12px rgba(167, 139, 250, 0.35);
+}
+
+html[data-portal="admin"] .sidebar-nav a.active {
+    background: linear-gradient(90deg, rgba(167, 139, 250, 0.18), rgba(167, 139, 250, 0.06));
+    border-left-color: var(--portal-primary);
+    color: #e9d5ff;
+}
+
+html[data-portal="admin"] .sidebar-nav a:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
+}
+
+html[data-portal="admin"] .user-avatar {
+    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
+}
+
+html[data-portal="admin"] .notification-bell {
+    background: var(--surface-muted);
+    border-color: var(--portal-border);
+}
+
+html[data-portal="admin"] .notification-bell:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-soft);
+    color: var(--portal-primary);
+}
+
+html[data-portal="admin"] #notification-dropdown {
+    background: var(--surface-elevated) !important;
+    border-color: var(--portal-border) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+html[data-portal="admin"] .filter-bar {
+    background: var(--portal-surface);
+    border-color: var(--portal-border);
+}
+
+html[data-portal="admin"] .course-card {
+    background: var(--portal-surface);
+    border-color: var(--portal-border);
+}
+
+html[data-portal="admin"] .course-card:hover {
+    border-color: rgba(167, 139, 250, 0.35);
+    box-shadow: var(--shadow-md), var(--portal-glow);
+}
+
+html[data-portal="admin"] .btn-ghost {
+    border-color: var(--portal-border);
+    color: var(--text-secondary);
+}
+
+html[data-portal="admin"] .btn-ghost:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-soft);
+    color: var(--portal-primary);
+}
+
+html[data-portal="admin"] .sidebar-footer .btn-ghost:hover {
+    background: rgba(251, 113, 133, 0.12);
+    border-color: rgba(251, 113, 133, 0.3);
+    color: var(--danger);
+}
+
+html[data-portal="admin"] .modal-overlay {
+    background: rgba(0, 0, 0, 0.65) !important;
+}
+
+html[data-portal="admin"] .tab-btn.active {
+    color: var(--portal-primary);
+    border-bottom-color: var(--portal-primary);
+}
