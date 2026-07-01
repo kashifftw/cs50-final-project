@@ -60,7 +60,6 @@ const StudentPortal = {
             <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value">${completed}</div></div>
             <div class="stat-card"><div class="stat-label">Current Credits</div><div class="stat-value">${credits}</div></div>
         `;
-        UniERP.animateStagger(this.statsEl, '.stat-card');
     },
 
     renderList(enrollments) {
@@ -103,12 +102,11 @@ const StudentPortal = {
             btn.addEventListener('click', () => this.dropCourse(parseInt(btn.dataset.dropEnrollment), btn));
         });
 
-        UniERP.animateStagger(this.listEl, '.data-table tbody tr');
     },
 
     enrollmentRow(enrollment) {
         const statusBadge = {
-            enrolled: 'badge-emerald',
+            enrolled: 'badge-enrolled',
             waitlisted: 'badge-amber',
             completed: 'badge-blue',
         }[enrollment.status] || 'badge-violet';
@@ -121,10 +119,10 @@ const StudentPortal = {
         return `
             <tr>
                 <td>${enrollment.semester_name}</td>
-                <td><strong>${enrollment.code}</strong><br><span style="color:var(--text-muted);font-size:0.75rem;">${enrollment.title}</span></td>
+                <td><strong>${enrollment.code}</strong><br><span style="color:var(--text-muted);font-size:0.8125rem;">${enrollment.title}</span></td>
                 <td>${enrollment.credits_label || enrollment.credits}</td>
                 <td>${enrollment.instructor_name || '—'}</td>
-                <td>${enrollment.schedule_day || 'TBA'}<br><span style="font-size:0.75rem;color:var(--text-muted);">${enrollment.schedule_time || ''}</span></td>
+                <td>${enrollment.schedule_day || 'TBA'}<br><span style="font-size:0.8125rem;color:var(--text-muted);">${enrollment.schedule_time || ''}</span></td>
                 <td>${enrollment.grade ? `<span class="badge badge-emerald">${enrollment.grade}</span>` : '—'}</td>
                 <td><span class="badge ${statusBadge}">${enrollment.status}</span></td>
                 <td>${dropBtn}</td>
