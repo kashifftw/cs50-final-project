@@ -6,7 +6,6 @@
 <header class="dashboard-hero">
     <div>
         <h1 class="portal-page-title">Dashboard</h1>
-        <p class="portal-page-subtitle">Your academic overview for {{ semester.name if semester else 'this semester' }}</p>
     </div>
     {% if semester and semester.registration_open %}
     <a href="{{ url_for('student_courses') }}" class="btn btn-primary dashboard-hero-cta">Register for courses</a>
@@ -62,9 +61,6 @@
             <div class="degree-progress-ring" style="--progress: {{ degree_progress }};">
                 <span class="degree-progress-value">{{ degree_progress }}%</span>
             </div>
-            <p class="degree-progress-caption">
-                <strong>{{ completed_credits }}</strong> of <strong>{{ degree_credits_required }}</strong> credits completed
-            </p>
         </div>
     </section>
 
@@ -159,7 +155,7 @@
 
 {% if semester and semester.registration_open %}
 <div class="portal-reg-banner" id="announcements">
-    Registration is open for <strong>{{ semester.name }}</strong> — {{ offered_courses }} courses available.
+    <strong>{{ semester.name }}</strong>
     <a href="{{ url_for('student_courses') }}" class="btn btn-primary btn-sm">Register</a>
 </div>
 {% endif %}
