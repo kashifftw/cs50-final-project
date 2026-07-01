@@ -2,9 +2,9 @@
 {% block title %}Fees{% endblock %}
 
 {% block content %}
+<div class="portal-fees-page">
 <div class="portal-inner-header">
     <h1>Fees & Payments</h1>
-    <p>View balances, due dates, and payment history</p>
 </div>
 
 <div class="dash-stat-row" style="grid-template-columns:repeat(2,1fr);max-width:600px;">
@@ -37,8 +37,14 @@
                 <td>${{ '%.2f'|format(fee.amount_paid) }}</td>
                 <td>{{ fee.due_date }}</td>
                 <td>
-                    {% if fee.status == 'paid' %}<span class="badge badge-emerald">Paid</span>
-                    {% elif fee.status == 'overdue' %}<span class="badge badge-red">Overdue</span>
+                    {% if fee.status == 'paid' %}
+                    <span class="badge badge-fee-paid">
+                        <span class="fee-status-icon fee-status-icon--paid" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        </span>
+                        Paid
+                    </span>
+                    {% elif fee.status == 'overdue' %}<span class="badge badge-fee-overdue">Overdue</span>
                     {% elif fee.status == 'partial' %}<span class="badge badge-amber">Partial</span>
                     {% else %}<span class="badge badge-blue">Pending</span>{% endif %}
                 </td>
@@ -73,5 +79,6 @@
     {% else %}
     <p class="empty-state" style="padding:1.5rem;">No payments recorded.</p>
     {% endif %}
+</div>
 </div>
 {% endblock %}
