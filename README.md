@@ -2,7 +2,7 @@
 
 **CS50 Final Project**
 
-**Demo video:** [https://youtu.be/PLACEHOLDER](https://youtu.be/PLACEHOLDER) *(replace with your unlisted YouTube URL before submission)*
+**Demo video:** [https://youtu.be/QWPnKI2lLXc](https://youtu.be/QWPnKI2lLXc)
 
 ---
 
