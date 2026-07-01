@@ -1,108 +1,108 @@
 /**
- * Admin console — Aurora theme layout polish
+ * Admin console — layout polish (colors live in portal-theme.css)
  */
 
-html[data-portal="admin"] body {
-    background: var(--portal-bg);
-    background-image: var(--portal-bg-image);
-    background-attachment: fixed;
+html[data-portal="admin"] .brand-tag {
+    color: var(--erp-text-subtle);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
-html[data-portal="admin"] .main-content {
-    background: transparent;
+html[data-portal="admin"] .user-name {
+    color: var(--erp-text);
 }
 
-html[data-portal="admin"] .page-header {
-    background: rgba(15, 17, 23, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom-color: rgba(167, 139, 250, 0.12);
+html[data-portal="admin"] .user-role {
+    color: var(--erp-text-muted);
+    font-size: 0.75rem;
 }
 
-html[data-portal="admin"] .page-body {
-    background: transparent;
-}
-
-html[data-portal="admin"] .sidebar {
-    background: var(--sidebar-bg);
-    border-right-color: var(--sidebar-border);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
-}
-
-html[data-portal="admin"] .brand-icon {
-    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
-    box-shadow: 0 2px 12px rgba(167, 139, 250, 0.35);
+html[data-portal="admin"] .user-chip {
+    color: var(--erp-text-muted);
 }
 
 html[data-portal="admin"] .sidebar-nav a.active {
-    background: linear-gradient(90deg, rgba(167, 139, 250, 0.18), rgba(167, 139, 250, 0.06));
-    border-left-color: var(--portal-primary);
-    color: #e9d5ff;
+    border-left: 3px solid var(--erp-brand-border);
+    font-weight: 600;
 }
 
-html[data-portal="admin"] .sidebar-nav a:hover {
-    background: var(--sidebar-hover);
-    color: var(--sidebar-text-active);
+html[data-portal="admin"] .page-body .glass-card {
+    border-radius: 14px;
 }
 
-html[data-portal="admin"] .user-avatar {
-    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
+html[data-portal="admin"] .mobile-menu-btn {
+    background: var(--erp-bg-card);
+    border: 1px solid var(--erp-border);
+    color: var(--erp-text);
 }
 
-html[data-portal="admin"] .notification-bell {
-    background: var(--surface-muted);
-    border-color: var(--portal-border);
+html[data-portal="admin"] .mobile-menu-btn:hover {
+    background: var(--erp-bg-card-header);
+    border-color: var(--erp-border-strong);
 }
 
-html[data-portal="admin"] .notification-bell:hover {
-    background: var(--primary-light);
-    border-color: var(--primary-soft);
-    color: var(--portal-primary);
+/* Admin dashboard — Student Portal preview card */
+html[data-portal="admin"] .admin-portal-preview-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-html[data-portal="admin"] #notification-dropdown {
-    background: var(--surface-elevated) !important;
-    border-color: var(--portal-border) !important;
-    box-shadow: var(--shadow-lg) !important;
+html[data-portal="admin"] .admin-portal-preview-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
-html[data-portal="admin"] .filter-bar {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
+html[data-portal="admin"] .admin-portal-preview-desc {
+    font-size: 0.875rem;
+    color: var(--erp-text-muted);
+    margin: 0 0 1rem;
+    line-height: 1.5;
 }
 
-html[data-portal="admin"] .course-card {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
+html[data-portal="admin"] .admin-portal-section-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
 }
 
-html[data-portal="admin"] .course-card:hover {
-    border-color: rgba(167, 139, 250, 0.35);
-    box-shadow: var(--shadow-md), var(--portal-glow);
+html[data-portal="admin"] .admin-portal-section-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--erp-border-soft);
+    font-size: 0.875rem;
 }
 
-html[data-portal="admin"] .btn-ghost {
-    border-color: var(--portal-border);
-    color: var(--text-secondary);
+html[data-portal="admin"] .admin-portal-section-row:last-child {
+    border-bottom: none;
 }
 
-html[data-portal="admin"] .btn-ghost:hover {
-    background: var(--primary-light);
-    border-color: var(--primary-soft);
-    color: var(--portal-primary);
+html[data-portal="admin"] .admin-portal-section-label {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    color: var(--erp-text);
 }
 
-html[data-portal="admin"] .sidebar-footer .btn-ghost:hover {
-    background: rgba(251, 113, 133, 0.12);
-    border-color: rgba(251, 113, 133, 0.3);
-    color: var(--danger);
+html[data-portal="admin"] .admin-portal-section-status {
+    flex-shrink: 0;
+    margin-left: auto;
+    min-width: 2.75rem;
+    text-align: center;
+    font-weight: 600;
 }
 
-html[data-portal="admin"] .modal-overlay {
-    background: rgba(0, 0, 0, 0.65) !important;
-}
-
-html[data-portal="admin"] .tab-btn.active {
-    color: var(--portal-primary);
-    border-bottom-color: var(--portal-primary);
+html[data-portal="admin"] .admin-portal-preview-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1.5rem;
 }
