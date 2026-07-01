@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Students{% endblock %}
 {% block page_title %}Students{% endblock %}
-{% block page_subtitle %}<p class="page-subtitle">Add, edit, and view student accounts</p>{% endblock %}
+{% block page_subtitle %}{% endblock %}
 
 {% block sidebar_nav %}
 {% include "admin/_sidebar.html" %}
@@ -12,7 +12,6 @@
     <div class="glass-card">
         <div class="glass-card-header">
             <h2 class="glass-card-title">Admission Sessions</h2>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">Each session auto-assigns roll numbers (e.g. 2025-F-001)</p>
         </div>
         <div class="table-wrap" style="margin-bottom:1rem;">
             <table class="data-table">
@@ -63,7 +62,6 @@
     <div class="glass-card">
         <div class="glass-card-header">
             <h2 class="glass-card-title">Bulk Import (CSV)</h2>
-            <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">Import many admitted students in one step</p>
         </div>
         <form id="bulk-import-form" enctype="multipart/form-data">
             <div class="form-group">
@@ -82,7 +80,6 @@
             <div class="form-group">
                 <label class="form-label" for="csv_file">CSV File</label>
                 <input class="form-input" type="file" id="csv_file" name="csv_file" accept=".csv,text/csv" required>
-                <p class="form-hint">Columns: <code>first_name</code>, <code>last_name</code>, <code>email</code>, <code>program</code>, <code>department_code</code> (optional)</p>
             </div>
             <button type="submit" class="btn btn-violet">Import Students</button>
         </form>
@@ -93,7 +90,6 @@
 <div class="glass-card" style="margin-bottom:1.25rem;">
     <div class="glass-card-header">
         <h2 class="glass-card-title">Add One Student</h2>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin:0;">Manual entry or auto roll number from a session</p>
     </div>
     <form id="add-student-form">
         <div class="form-row">
@@ -243,8 +239,7 @@
         </div>
         <div class="form-group">
             <label class="form-label">Max credit hours / semester</label>
-            <input class="form-input" type="number" name="max_credit_hours" min="1" placeholder="Leave blank for default (18)">
-            <p class="form-hint">Override the semester credit limit for this student (e.g. 21 for graduating seniors).</p>
+            <input class="form-input" type="number" name="max_credit_hours" min="1" placeholder="Default">
         </div>
         <div style="display:flex;gap:0.5rem;margin-top:1rem;">
             <button type="submit" class="btn btn-primary">Save</button>
