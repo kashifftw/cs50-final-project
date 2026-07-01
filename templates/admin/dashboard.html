@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Admin{% endblock %}
 {% block page_title %}Admin Dashboard{% endblock %}
-{% block page_subtitle %}<p class="page-subtitle">Key university statistics at a glance</p>{% endblock %}
+{% block page_subtitle %}{% endblock %}
 
 {% block sidebar_nav %}
 {% include "admin/_sidebar.html" %}
@@ -47,7 +47,7 @@
         <div style="display:flex;flex-direction:column;gap:0.5rem;">
             <a href="{{ url_for('admin_students') }}" class="btn btn-ghost">Manage Students</a>
             <a href="{{ url_for('admin_manage') }}" class="btn btn-ghost">Manage Courses</a>
-            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-ghost">Enrollments & Grades</a>
+            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-ghost">Enrollments</a>
             <a href="{{ url_for('admin_fees') }}" class="btn btn-ghost">Fees</a>
             <a href="{{ url_for('admin_announcements') }}" class="btn btn-ghost">Announcements</a>
         </div>
@@ -56,18 +56,25 @@
         {% endif %}
     </div>
 
-    <div class="glass-card">
+    <div class="glass-card admin-portal-preview-card">
         <div class="glass-card-header"><h2 class="glass-card-title">Student Portal</h2></div>
-        <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1rem;">Toggle which sections students can access.</p>
-        <ul style="font-size:0.875rem;line-height:1.8;">
-            {% for key, section in portal_sections.items() %}
-            <li>
-                <strong>{{ section.label }}</strong>
-                {% if section.enabled %}<span class="badge badge-emerald">On</span>{% else %}<span class="badge badge-red">Off</span>{% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-        <a href="{{ url_for('admin_portal') }}" class="btn btn-primary btn-sm" style="margin-top:1rem;">Manage Sections</a>
+        <div class="admin-portal-preview-body">
+            <ul class="admin-portal-section-list">
+                {% for key, section in portal_sections.items() %}
+                <li class="admin-portal-section-row">
+                    <span class="admin-portal-section-label">{{ section.label }}</span>
+                    {% if section.enabled %}
+                    <span class="badge badge-emerald admin-portal-section-status">On</span>
+                    {% else %}
+                    <span class="badge badge-red admin-portal-section-status">Off</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="admin-portal-preview-footer">
+                <a href="{{ url_for('admin_portal') }}" class="btn btn-primary btn-sm">Manage Sections</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
