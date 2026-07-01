@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Courses{% endblock %}
 {% block page_title %}Course Management{% endblock %}
-{% block page_subtitle %}<p class="page-subtitle">Manage courses, semesters, departments, and credit hour settings</p>{% endblock %}
+{% block page_subtitle %}{% endblock %}
 
 {% block sidebar_nav %}
 {% include "admin/_sidebar.html" %}
@@ -123,8 +123,8 @@
                 <div class="form-group">
                     <label class="form-label">Course type</label>
                     <select class="form-select" name="has_lab" required>
-                        <option value="0">Theory only (2 credit hours)</option>
-                        <option value="1" selected>Theory + Lab (3 credit hours)</option>
+                        <option value="0">Theory only</option>
+                        <option value="1" selected>Theory + Lab</option>
                     </select>
                 </div>
             </div>
@@ -159,7 +159,6 @@
             <div class="form-group">
                 <label class="form-label" for="new-prerequisites">Prerequisites</label>
                 <select class="form-select" id="new-prerequisites" name="prerequisite_ids" multiple size="4"></select>
-                <p class="form-hint">Hold Ctrl/Cmd to select multiple courses.</p>
             </div>
             <button type="submit" class="btn btn-violet">Create Course</button>
         </form>
@@ -182,8 +181,8 @@
             <div class="form-group">
                 <label class="form-label">Course type</label>
                 <select class="form-select" name="has_lab" required>
-                    <option value="0">Theory only (2 credit hours)</option>
-                    <option value="1">Theory + Lab (3 credit hours)</option>
+                    <option value="0">Theory only</option>
+                    <option value="1">Theory + Lab</option>
                 </select>
             </div>
         </div>
