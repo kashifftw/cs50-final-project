@@ -1,0 +1,120 @@
+/**
+ * Shared motion — auth login switch only; student & admin portals stay static.
+ */
+
+/* ── Auth (light fade when switching student ↔ admin login) ─────────── */
+
+html[data-portal="auth"] {
+    --auth-switch-duration: 0.5s;
+    --auth-switch-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html[data-portal="auth"] .auth-shell {
+    transition: opacity var(--auth-switch-duration) var(--auth-switch-ease),
+        transform var(--auth-switch-duration) var(--auth-switch-ease);
+}
+
+html[data-portal="auth"].auth-is-leaving .auth-shell {
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+}
+
+html[data-portal="auth"].auth-is-entering .auth-shell {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: motion-auth-enter var(--auth-switch-duration) var(--auth-switch-ease) both;
+}
+
+@keyframes motion-auth-enter {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Student & admin — no load or navigation motion ─────────────────────── */
+
+html[data-portal="student"] .portal-topbar,
+html[data-portal="student"] .portal-icon-nav,
+html[data-portal="student"] .portal-main,
+html[data-portal="student"] .portal-inner-header,
+html[data-portal="student"] .dashboard-hero,
+html[data-portal="student"] .dash-stat-card,
+html[data-portal="student"] .widget-card,
+html[data-portal="student"] .portal-main > .glass-card,
+html[data-portal="student"] .semester-result-card,
+html[data-portal="student"] .portal-banner,
+html[data-portal="student"] .portal-reg-banner,
+html[data-portal="student"] .filter-bar,
+html[data-portal="student"] .flash-messages .alert,
+html[data-portal="student"] .course-card,
+html[data-portal="student"] .schedule-item,
+html[data-portal="student"] .glass-card,
+html[data-portal="student"] .degree-progress-card,
+html[data-portal="student"] .stats-grid .stat-card,
+html[data-portal="admin"] .main-content,
+html[data-portal="admin"] .sidebar,
+html[data-portal="admin"] .page-header,
+html[data-portal="admin"] .page-body,
+html[data-portal="admin"] .page-body .glass-card,
+html[data-portal="admin"] .content-grid .glass-card,
+html[data-portal="admin"] .flash-messages .alert,
+html[data-portal="admin"] .course-card,
+html[data-portal="admin"] .glass-card,
+html[data-portal="admin"] .stats-grid .stat-card,
+html[data-portal="admin"] .schedule-item {
+    animation: none !important;
+    transform: none !important;
+}
+
+html[data-portal="admin"] .main-content,
+html[data-portal="admin"].admin-is-leaving .main-content,
+html[data-portal="admin"].admin-is-entering .main-content {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+html[data-portal="student"] .portal-profile-menu.is-open .portal-profile-dropdown,
+html[data-portal="student"] #notification-dropdown.open,
+html[data-portal="admin"] #notification-dropdown.open {
+    animation: none !important;
+    transform: none !important;
+}
+
+html[data-portal="student"] .motion-reveal,
+html[data-portal="admin"] .motion-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+html[data-portal="student"] .progress-fill,
+html[data-portal="student"] .seats-fill,
+html[data-portal="student"] .attendance-bar-fill,
+html[data-portal="admin"] .progress-fill,
+html[data-portal="admin"] .seats-fill {
+    transition: none !important;
+}
+
+html[data-portal="student"] .data-table tbody tr,
+html[data-portal="admin"] .data-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-portal="auth"].auth-is-leaving .auth-shell,
+    html[data-portal="auth"].auth-is-entering .auth-shell {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
