@@ -1,8 +1,43 @@
-/* Student portal — Aurora theme (tokens in aurora-theme.css) */
+/* Student portal — layered greys + soft light stat row */
+
+html[data-portal="student"] {
+    /* Aliases — shared ERP palette (portal-theme.css) */
+    --student-bg: var(--erp-bg);
+    --student-bg-nav: var(--erp-bg-nav);
+    --student-bg-topbar: var(--erp-bg-topbar);
+    --student-bg-card: var(--erp-bg-card);
+    --student-bg-card-header: var(--erp-bg-card-header);
+    --student-bg-card-body: var(--erp-bg-card-body);
+    --student-bg-table-head: var(--erp-bg-table-head);
+    --student-bg-table-hover: var(--erp-bg-table-hover);
+    --student-border: var(--erp-border);
+    --student-border-soft: var(--erp-border-soft);
+    --student-border-strong: var(--erp-border-strong);
+    --student-text: var(--erp-text);
+    --student-text-muted: var(--erp-text-muted);
+    --student-text-subtle: var(--erp-text-subtle);
+    --student-stat-bg: var(--erp-cloud);
+    --student-stat-bg-icon: var(--erp-cloud-dark);
+    --student-stat-border: var(--erp-cloud-border);
+    --student-stat-text: var(--erp-cloud-text);
+    --student-stat-label: #555550;
+    --student-stat-hover-border: #8a8a88;
+    --student-stat-btn-hover: var(--erp-cloud-dark);
+    --student-brand: var(--erp-brand);
+    --student-brand-hover: var(--erp-brand-hover);
+    --student-brand-border: var(--erp-brand-border);
+    --student-brand-text: var(--erp-brand-text);
+    --student-brand-shadow: var(--erp-brand-shadow);
+    --student-register-bg: var(--erp-action-bg);
+    --student-register-bg-hover: var(--erp-action-hover);
+    --student-register-border: var(--erp-action-border);
+    --student-register-text: var(--erp-action-text);
+    --student-bg-muted: var(--erp-bg-card-body);
+}
 
 .student-portal-body {
-    background: var(--portal-bg);
-    background-image: var(--portal-bg-image);
+    background: var(--student-bg);
+    background-image: none;
     min-height: 100vh;
     transition: background 0.25s ease, color 0.25s ease;
 }
@@ -32,17 +67,63 @@
 }
 
 .portal-logo-mark {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
-    color: #fff;
-    font-size: 0.625rem;
-    font-weight: 800;
+    width: 42px;
+    height: 42px;
+    background: var(--student-stat-bg, linear-gradient(135deg, var(--portal-primary), var(--portal-accent)));
+    color: var(--student-stat-text, #fff);
+    font-size: 0.6875rem;
+    font-weight: 900;
     display: grid;
     place-items: center;
     border-radius: 10px;
-    letter-spacing: 0.04em;
-    box-shadow: 0 2px 12px rgba(167, 139, 250, 0.35);
+    letter-spacing: 0.08em;
+    border: 1px solid var(--student-stat-border, transparent);
+    box-shadow: none;
+    line-height: 1;
+}
+
+html[data-portal="student"] .portal-logo-mark {
+    background: var(--student-stat-bg);
+    border: 1px solid var(--student-stat-border);
+    color: #111111;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+html[data-portal="student"] .portal-university-name {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-welcome {
+    color: var(--student-text-muted);
+}
+
+html[data-portal="student"] .portal-welcome strong {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-profile-btn {
+    background: var(--student-bg-card);
+    border: 1px solid var(--student-border);
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-profile-btn:hover,
+html[data-portal="student"] .portal-profile-menu.is-open .portal-profile-btn {
+    background: var(--student-bg-muted);
+    border-color: var(--student-border-strong);
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-profile-avatar {
+    background: var(--student-brand);
+    color: var(--student-brand-text);
+    border: 1px solid var(--student-brand-border);
+}
+
+html[data-portal="student"] .portal-profile-chevron {
+    color: var(--student-text-muted);
 }
 
 .portal-university-name {
@@ -65,12 +146,67 @@
     padding: 0.45rem;
     color: var(--portal-icon);
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.portal-notify svg {
+    width: 20px;
+    height: 20px;
 }
 
 .portal-notify:hover {
     background: var(--primary-light);
     border-color: var(--primary-soft);
     color: var(--primary);
+}
+
+/* Notification bell — dashboard Gray Cloud theme */
+html[data-portal="student"] .theme-toggle,
+html[data-portal="student"] .portal-theme-toggle {
+    display: none !important;
+}
+
+html[data-portal="student"] .portal-notify.notification-bell {
+    background: var(--student-stat-bg);
+    border: 1px solid var(--student-stat-border);
+    border-radius: 12px;
+    padding: 0.55rem 0.65rem;
+    color: var(--student-stat-text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+html[data-portal="student"] .portal-notify.notification-bell:hover {
+    background: var(--student-stat-bg-icon);
+    border-color: var(--student-stat-hover-border);
+    color: var(--student-stat-text);
+}
+
+html[data-portal="student"] .portal-notify .notification-badge {
+    background: var(--student-brand-text);
+    color: var(--student-brand);
+    border: 1px solid var(--student-stat-border);
+    font-size: 0.6875rem;
+    min-width: 18px;
+    height: 18px;
+    top: -6px;
+    right: -6px;
+}
+
+html[data-portal="student"] .portal-notify-dropdown .notification-item.unread {
+    border-left: 3px solid var(--student-brand);
+    background: var(--student-bg-muted);
+}
+
+html[data-portal="student"] .portal-notify-dropdown .notification-item:hover {
+    background: var(--student-bg-table-hover);
+}
+
+html[data-portal="student"] .portal-notify-dropdown .notification-item .notification-time {
+    color: var(--student-text-muted);
 }
 
 .portal-user-chip {
@@ -113,8 +249,8 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
-    color: #fff;
+    background: var(--student-brand, linear-gradient(135deg, var(--portal-primary), var(--portal-accent)));
+    color: var(--student-brand-text, #fff);
     font-size: 0.6875rem;
     font-weight: 700;
     display: grid;
@@ -232,19 +368,22 @@
 
 .portal-profile-logout {
     color: var(--danger);
+    background: transparent;
 }
 
 .portal-profile-logout svg {
     color: var(--danger);
 }
 
-.portal-profile-logout:hover {
-    background: var(--danger-bg);
-    color: var(--danger);
+.portal-profile-link.portal-profile-logout:hover,
+.portal-profile-link.portal-profile-logout:focus-visible {
+    background: var(--danger-hover-bg);
+    color: var(--danger-hover-text);
 }
 
-.portal-profile-logout:hover svg {
-    color: var(--danger);
+.portal-profile-link.portal-profile-logout:hover svg,
+.portal-profile-link.portal-profile-logout:focus-visible svg {
+    color: var(--danger-hover-text);
 }
 
 .portal-welcome {
@@ -378,9 +517,9 @@
 }
 
 .portal-icon-link.active {
-    background: linear-gradient(135deg, var(--portal-primary), var(--portal-accent));
-    color: #0a0c10;
-    box-shadow: 0 4px 16px rgba(167, 139, 250, 0.35);
+    background: var(--student-brand, #f0ffff);
+    color: var(--student-brand-text, #342d7e);
+    box-shadow: 0 4px 16px var(--student-brand-shadow, rgba(240, 255, 255, 0.35));
     font-weight: 700;
 }
 
@@ -392,7 +531,7 @@
     transform: translateY(-50%);
     width: 4px;
     height: 24px;
-    background: var(--primary);
+    background: var(--student-brand, #f0ffff);
     border-radius: 0 4px 4px 0;
 }
 
@@ -402,8 +541,8 @@
 }
 
 .portal-icon-logout:hover {
-    background: var(--danger-bg);
-    color: var(--danger);
+    background: var(--danger-hover-bg);
+    color: var(--danger-hover-text);
 }
 
 .portal-flash {
@@ -429,8 +568,8 @@
 }
 
 .dash-stat-card {
-    background: var(--portal-surface);
-    border: 1px solid var(--portal-border);
+    background: var(--student-stat-bg, var(--portal-surface));
+    border: 1px solid var(--student-stat-border, var(--portal-border));
     border-radius: 16px;
     padding: clamp(1rem, 2vw, 1.35rem) clamp(1rem, 2.5vw, 1.5rem);
     display: flex;
@@ -468,7 +607,7 @@
 .dash-stat-label {
     font-size: clamp(0.6875rem, 1.2vw, 0.75rem);
     font-weight: 600;
-    color: var(--portal-text-muted);
+    color: var(--student-stat-label, var(--portal-text-muted));
     text-transform: uppercase;
     letter-spacing: 0.04em;
     line-height: 1.3;
@@ -477,7 +616,7 @@
 .dash-stat-value {
     font-size: clamp(1.125rem, 2.5vw, 1.5rem);
     font-weight: 700;
-    color: var(--portal-text);
+    color: var(--student-stat-text, var(--portal-text));
     margin-top: 0.2rem;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -532,112 +671,224 @@ html[data-portal="student"] .widget-link {
 }
 
 html[data-portal="student"] .widget-link:hover {
-    color: var(--portal-accent);
+    color: var(--student-text);
 }
 
-html[data-portal="student"] .dash-stat-card,
 html[data-portal="student"] .widget-card {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
+    background: var(--student-bg-card);
+    border-color: var(--student-border);
     box-shadow: var(--shadow-sm);
 }
 
-html[data-portal="student"] .dash-stat-card:hover,
 html[data-portal="student"] .widget-card:hover {
-    border-color: rgba(167, 139, 250, 0.25);
-    box-shadow: var(--shadow-md), var(--portal-glow);
+    border-color: var(--student-border-strong);
+    box-shadow: var(--shadow-md);
+}
+
+html[data-portal="student"] .widget-header,
+html[data-portal="student"] .widget-header-navy,
+html[data-portal="student"] .widget-header-purple,
+html[data-portal="student"] .widget-header-blue,
+html[data-portal="student"] .widget-header-maroon {
+    background: var(--student-bg-card-header);
+    border-bottom-color: var(--student-border-soft);
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .widget-body {
+    background: var(--student-bg-card-body);
 }
 
 html[data-portal="student"] .portal-profile-dropdown,
 html[data-portal="student"] .portal-notify-dropdown {
-    background: var(--surface-elevated);
-    border-color: var(--portal-border);
+    background: var(--student-bg-card-header);
+    border-color: var(--student-border);
     box-shadow: var(--shadow-lg);
 }
 
-html[data-portal="student"] .btn-primary {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    border: 1px solid rgba(167, 139, 250, 0.35);
-    color: #fff;
-    box-shadow: 0 2px 12px rgba(124, 58, 237, 0.35);
-}
-
-html[data-portal="student"] .btn-primary:hover {
-    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
-    box-shadow: 0 4px 16px rgba(167, 139, 250, 0.4);
-}
-
-html[data-portal="student"] .course-card {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
-}
-
-html[data-portal="student"] .course-card:hover {
-    border-color: rgba(167, 139, 250, 0.35);
-    box-shadow: var(--shadow-md), var(--portal-glow);
-}
-
-html[data-portal="student"] .filter-bar {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
-}
-
-html[data-portal="student"] .form-input,
-html[data-portal="student"] .form-select,
-html[data-portal="student"] .form-textarea {
-    background: var(--surface-muted);
-    border-color: var(--portal-border);
-    color: var(--portal-text);
-}
-
-html[data-portal="student"] .form-input:focus,
-html[data-portal="student"] .form-select:focus,
-html[data-portal="student"] .form-textarea:focus {
-    border-color: var(--portal-primary);
-    box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-html[data-portal="student"] .glass-card {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
-}
-
 html[data-portal="student"] .stat-card {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
+    background: var(--student-stat-bg);
+    border: 1px solid var(--student-stat-border);
+    color: var(--student-stat-text);
+}
+
+html[data-portal="student"] .stat-card .stat-label {
+    color: var(--student-stat-label);
+}
+
+html[data-portal="student"] .stat-card .stat-value {
+    color: var(--student-stat-text);
+}
+
+html[data-portal="student"] .stat-card:hover {
+    border-color: var(--student-stat-hover-border);
+    box-shadow: none;
 }
 
 html[data-portal="student"] .portal-icon-nav {
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.25);
+    background: var(--student-bg-nav);
+    border-right-color: var(--student-border-soft);
+    box-shadow: none;
+}
+
+html[data-portal="student"] .portal-main {
+    background: var(--student-bg);
 }
 
 html[data-portal="student"] ::selection {
-    background: rgba(167, 139, 250, 0.35);
-    color: #fff;
-}
-
-html[data-portal="student"] .portal-topbar {
-    border-bottom-color: rgba(167, 139, 250, 0.12);
+    background: #555555;
+    color: #ffffff;
 }
 
 html[data-portal="student"] .portal-main .data-table th {
-    background: var(--surface-muted);
-    color: var(--portal-text-muted);
+    background: var(--student-bg-table-head);
+    color: var(--student-text-muted);
 }
 
 html[data-portal="student"] .portal-main .data-table tbody tr:hover {
-    background: rgba(167, 139, 250, 0.05);
+    background: var(--student-bg-table-hover);
 }
 
 html[data-portal="student"] .schedule-item {
-    background: var(--portal-surface);
-    border-color: var(--portal-border);
+    background: var(--student-bg-card);
+    border-color: var(--student-border);
+}
+
+html[data-portal="student"] .portal-topbar {
+    background: var(--student-bg-topbar);
+    border-bottom-color: var(--student-border-soft);
+}
+
+/* ── Portal page color system (all student sections) ───────────────────── */
+
+html[data-portal="student"] .portal-main .portal-page-title,
+html[data-portal="student"] .portal-inner-header h1 {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-main .portal-page-subtitle,
+html[data-portal="student"] .portal-inner-header p {
+    color: var(--student-text-muted);
+}
+
+html[data-portal="student"] .portal-main .dash-stat-card {
+    background: var(--student-stat-bg) !important;
+    border-color: var(--student-stat-border) !important;
+    box-shadow: none;
+}
+
+html[data-portal="student"] .portal-main .dash-stat-card:hover {
+    border-color: var(--student-stat-hover-border) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+html[data-portal="student"] .portal-main .dash-stat-label {
+    color: var(--student-stat-label);
+}
+
+html[data-portal="student"] .portal-main .dash-stat-value {
+    color: var(--student-stat-text);
+}
+
+html[data-portal="student"] .portal-main .dash-stat-icon-red,
+html[data-portal="student"] .portal-main .dash-stat-icon-green,
+html[data-portal="student"] .portal-main .dash-stat-icon-blue,
+html[data-portal="student"] .portal-main .dash-stat-icon-brown {
+    background: var(--student-stat-bg-icon) !important;
+    color: #ffffff !important;
+}
+
+html[data-portal="student"] .portal-main .widget-card {
+    background: var(--student-bg-card);
+    border-color: var(--student-border);
+    box-shadow: none;
+}
+
+html[data-portal="student"] .portal-main .widget-card:hover {
+    border-color: var(--student-border-strong);
+    box-shadow: none;
+}
+
+html[data-portal="student"] .portal-main .widget-link {
+    color: var(--student-text-muted);
+}
+
+html[data-portal="student"] .portal-main .widget-link:hover {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-main .widget-empty {
+    color: var(--student-text-subtle);
+}
+
+html[data-portal="student"] .portal-main .widget-table-course strong {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-main .widget-table-course span {
+    color: var(--student-text-muted);
+}
+
+html[data-portal="student"] .portal-main .degree-progress-value {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-main .degree-progress-caption {
+    color: var(--student-text-muted);
+}
+
+html[data-portal="student"] .portal-main .degree-progress-ring {
+    background: conic-gradient(var(--student-stat-bg) calc(var(--progress, 0) * 1%), var(--student-border) 0);
+}
+
+html[data-portal="student"] .portal-main .degree-progress-ring::before {
+    background: var(--student-bg-card-body);
+}
+
+html[data-portal="student"] .portal-main .portal-reg-banner {
+    background: var(--student-bg-card);
+    border: 1px solid var(--student-border);
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-main .portal-reg-banner strong {
+    color: var(--student-text);
+}
+
+html[data-portal="student"] .portal-main .badge-blue {
+    background: var(--student-bg-table-head);
+    color: var(--student-text);
+    border: 1px solid var(--student-border);
+}
+
+html[data-portal="student"] .portal-main .glass-card {
+    background: var(--student-bg-card);
+    border-color: var(--student-border);
+}
+
+html[data-portal="student"] .portal-main .portal-inner-header {
+    margin-bottom: 1.25rem;
+}
+
+html[data-portal="student"] .portal-icon-link.active {
+    background: var(--student-brand);
+    color: var(--student-brand-text);
+    box-shadow: 0 4px 16px var(--student-brand-shadow);
+}
+
+html[data-portal="student"] .portal-icon-link.active::after {
+    background: var(--student-brand);
+}
+
+html[data-portal="student"] .portal-icon-link:hover:not(.active) {
+    color: #c8f0f0;
 }
 
 html[data-portal="student"] a:focus-visible,
 html[data-portal="student"] button:focus-visible,
 html[data-portal="student"] .portal-icon-link:focus-visible {
-    outline: 2px solid var(--portal-accent);
+    outline: 2px solid var(--student-brand-border);
     outline-offset: 2px;
 }
 
@@ -756,9 +1007,9 @@ html[data-portal="student"] .portal-icon-link:focus-visible {
 }
 
 .widget-link:hover {
-    color: var(--portal-accent);
+    color: var(--portal-text-muted);
     text-decoration: none;
-    background: rgba(34, 211, 238, 0.12);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .widget-body-table {
@@ -888,8 +1139,8 @@ html[data-portal="student"] .portal-icon-link:focus-visible {
     flex-wrap: wrap;
     margin-bottom: 1.25rem;
     padding: 0.875rem 1.25rem;
-    background: var(--primary-light);
-    border: 1px solid var(--primary-soft);
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
     border-radius: 12px;
     font-size: 0.9375rem;
     color: var(--portal-text);
@@ -902,7 +1153,7 @@ html[data-portal="student"] .portal-icon-link:focus-visible {
 
 .course-credit-badge {
     font-weight: 600;
-    color: var(--primary);
+    color: var(--text-secondary);
 }
 
 .portal-credit-custom {
@@ -917,20 +1168,17 @@ html[data-portal="student"] .portal-icon-link:focus-visible {
 }
 
 .portal-inner-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.625rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--portal-text);
 }
 
 .portal-inner-header p {
-    font-size: 0.875rem;
-    color: var(--portal-text-muted);
+    font-size: 0.9375rem;
     margin-top: 0.35rem;
 }
 
 .portal-main .glass-card {
-    border-color: var(--portal-border);
     border-radius: 14px;
 }
 
