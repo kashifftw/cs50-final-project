@@ -49,15 +49,11 @@ const CourseCatalog = {
     renderCreditBanner() {
         if (!this.creditBanner || !this.creditHours) return;
 
-        const { used, max, remaining, is_custom_limit } = this.creditHours;
+        const { used, max, remaining } = this.creditHours;
         const atLimit = remaining <= 0;
-        const customNote = is_custom_limit ? ' <span class="portal-credit-custom">(custom limit)</span>' : '';
 
         this.creditBanner.className = `portal-credit-banner ${atLimit ? 'portal-credit-banner--full' : ''}`;
-        this.creditBanner.innerHTML = `
-            <strong>${used}/${max} credit hours used</strong>
-            <span>${remaining} remaining this semester${customNote}</span>
-        `;
+        this.creditBanner.innerHTML = `<strong>${used}/${max}</strong>`;
         this.creditBanner.style.display = 'flex';
     },
 
@@ -94,9 +90,8 @@ const CourseCatalog = {
 
         this.container.innerHTML = `<div class="course-grid">${courses.map(c => this.courseCard(c)).join('')}</div>`;
 
-        UniERP.animateStagger(this.container, '.course-card');
         this.container.querySelectorAll('.seats-fill').forEach((bar) => {
-            requestAnimationFrame(() => bar.classList.add('is-animated'));
+            bar.classList.add('is-animated');
         });
 
         this.container.querySelectorAll('[data-enroll]').forEach(btn => {
@@ -111,6 +106,7 @@ const CourseCatalog = {
         const fillPct = Math.min((course.enrolled_count / course.capacity) * 100, 100);
         const isFull = course.seats_available === 0;
         const creditBlocked = this.wouldExceedCredits(course.credits);
+        const creditLabel = `${course.credits} cr`;
 
         let prereqHtml = '';
         if (course.prerequisites?.length) {
@@ -128,34 +124,32 @@ const CourseCatalog = {
             const canEnroll = course.prerequisites_met !== false && !creditBlocked;
             let disabledTitle = '';
             if (course.prerequisites_met === false) disabledTitle = 'Prerequisites not met';
-            else if (creditBlocked) disabledTitle = `Exceeds credit hour limit (${this.creditHours?.max || 18})`;
+            else if (creditBlocked) disabledTitle = `Credit limit (${this.creditHours?.max || 18})`;
             actionBtn = `<button class="btn btn-primary btn-sm" data-enroll="${course.id}" ${canEnroll ? '' : `disabled title="${disabledTitle}"`}>${isFull ? 'Join Waitlist' : 'Enroll'}</button>`;
         } else {
             actionBtn = `<button class="btn btn-ghost btn-sm" disabled>Registration Closed</button>`;
         }
 
         let statusBadge = '';
-        if (course.enrollment_status === 'enrolled') statusBadge = '<span class="badge badge-emerald">Enrolled</span>';
+        if (course.enrollment_status === 'enrolled') statusBadge = '<span class="badge badge-enrolled">Enrolled</span>';
         else if (course.enrollment_status === 'waitlisted') statusBadge = '<span class="badge badge-amber">Waitlisted</span>';
+
+        const scheduleText = [course.schedule_day, course.schedule_time].filter(Boolean).join(' ') || 'TBA';
 
         return `
             <div class="course-card">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div class="course-card-top">
                     <div class="course-code">${course.code}</div>
                     ${statusBadge}
                 </div>
                 <div class="course-title">${course.title}</div>
                 <div class="course-meta">
-                    <span class="course-credit-badge">${course.credits_label || `${course.credits} cr`}</span>
-                    <span>${course.department_code}</span>
-                    <span>${course.schedule_day || 'TBA'} ${course.schedule_time || ''}</span>
-                    <span>${course.room || 'TBA'}</span>
+                    <span class="course-credit-badge">${creditLabel}</span>
+                    <span class="course-schedule">${scheduleText}</span>
                 </div>
-                ${course.instructor_name ? `<div style="font-size:0.75rem;color:var(--text-muted);">${course.instructor_name}</div>` : ''}
-                <p style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.5;">${course.description || ''}</p>
                 ${prereqHtml}
                 <div>
-                    <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);">
+                    <div style="display:flex;justify-content:space-between;font-size:0.8125rem;color:var(--text-muted);">
                         <span>${course.enrolled_count}/${course.capacity} enrolled</span>
                         <span>${course.waitlisted_count} waitlisted</span>
                     </div>
