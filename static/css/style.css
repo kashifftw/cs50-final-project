@@ -198,7 +198,7 @@
 }
 
 html {
-    font-size: 15px;
+    font-size: 16px;
     scroll-behavior: smooth;
 }
 
@@ -209,7 +209,7 @@ body {
     background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
-    line-height: 1.6;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -466,7 +466,7 @@ textarea:focus-visible {
 }
 
 .glass-card-title {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
 }
@@ -495,7 +495,7 @@ textarea:focus-visible {
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
@@ -547,7 +547,7 @@ textarea:focus-visible {
 
 .form-label {
     display: block;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-secondary);
     margin-bottom: 0.35rem;
@@ -563,7 +563,7 @@ textarea:focus-visible {
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
 }
 
@@ -637,7 +637,7 @@ textarea:focus-visible {
     border: 1.5px solid transparent;
     border-radius: var(--radius-sm);
     font-family: inherit;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.15s ease, box-shadow var(--transition);
@@ -737,7 +737,7 @@ textarea:focus-visible {
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     background: var(--surface);
 }
 
@@ -746,7 +746,7 @@ textarea:focus-visible {
     padding: 0.65rem 1rem;
     color: var(--text-muted);
     font-weight: 600;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     background: var(--surface-muted);
@@ -774,9 +774,9 @@ textarea:focus-visible {
 .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.6rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 999px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -1080,7 +1080,7 @@ textarea:focus-visible {
 }
 
 .course-title {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 600;
     line-height: 1.35;
     color: var(--text-primary);
@@ -1257,6 +1257,17 @@ textarea:focus-visible {
     padding: 0.75rem;
     border-bottom: 1px solid var(--border);
     font-size: 0.8125rem;
+    cursor: pointer;
+}
+
+.notification-item .notification-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+
+.notification-item .notification-link:hover {
+    text-decoration: underline;
 }
 
 .notification-item:last-child {
@@ -1291,7 +1302,7 @@ textarea:focus-visible {
 
 .announcement-title {
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     margin-bottom: 0.25rem;
     color: var(--text-primary);
 }
@@ -1665,7 +1676,7 @@ textarea:focus-visible {
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    font-size: 0.9375rem;
+    font-size: 1rem;
 }
 
 .profile-info-label {
@@ -1741,7 +1752,7 @@ textarea:focus-visible {
 }
 
 .profile-detail-row dd {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
     text-align: right;
