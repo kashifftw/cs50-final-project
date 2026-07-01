@@ -232,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             content.innerHTML = `
                 <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:1rem;">
-                    <div class="stat-card"><div class="stat-label">CGPA</div><div class="stat-value">${data.cgpa || '—'}</div></div>
                     <div class="stat-card"><div class="stat-label">Credits</div><div class="stat-value">${creditLine}</div></div>
                     <div class="stat-card"><div class="stat-label">Fees Due</div><div class="stat-value">$${Number(data.fees.total_due || 0).toFixed(2)}</div></div>
                     <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value">${data.fees.overdue_count || 0}</div></div>
@@ -241,38 +240,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${s.email} · ${s.program || 'Undeclared'}${s.department_code ? ` · ${s.department_code}` : ''}
                 </p>
 
-                <h3 style="font-size:0.9375rem;margin:1rem 0 0.5rem;">Enrolled Courses & Grades</h3>
+                <h3 style="font-size:0.9375rem;margin:1rem 0 0.5rem;">Enrolled Courses</h3>
                 ${data.enrollments.length ? `
                 <div class="table-wrap"><table class="data-table">
-                    <thead><tr><th>Course</th><th>Semester</th><th>Credits</th><th>Grade</th><th>Status</th></tr></thead>
+                    <thead><tr><th>Course</th><th>Semester</th><th>Credits</th><th>Status</th></tr></thead>
                     <tbody>
                         ${data.enrollments.map((e) => `
                             <tr>
                                 <td><strong>${e.code}</strong><br><span style="font-size:0.75rem;color:var(--text-muted);">${e.title}</span></td>
                                 <td>${e.semester_name}</td>
                                 <td>${e.credits_label || e.credits}</td>
-                                <td>${e.grade || '—'}</td>
                                 <td>${e.status}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table></div>` : '<p class="empty-state">No enrollments.</p>'}
-
-                <h3 style="font-size:0.9375rem;margin:1rem 0 0.5rem;">Attendance</h3>
-                ${data.attendance.length ? `
-                <div class="table-wrap"><table class="data-table">
-                    <thead><tr><th>Course</th><th>Present</th><th>Sessions</th><th>%</th></tr></thead>
-                    <tbody>
-                        ${data.attendance.map((a) => `
-                            <tr>
-                                <td>${a.code}</td>
-                                <td>${a.present}</td>
-                                <td>${a.total_sessions}</td>
-                                <td>${a.percentage}%</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table></div>` : '<p class="empty-state">No attendance records.</p>'}
 
                 <h3 style="font-size:0.9375rem;margin:1rem 0 0.5rem;">Fee Status</h3>
                 ${data.fees.fees?.length ? `
