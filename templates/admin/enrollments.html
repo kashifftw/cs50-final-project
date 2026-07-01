@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Enrollments{% endblock %}
-{% block page_title %}Enrollments & Grades{% endblock %}
-{% block page_subtitle %}<p class="page-subtitle">View rosters, enroll or drop students, and post grades — {{ semester.name if semester else 'No active semester' }}</p>{% endblock %}
+{% block page_title %}Enrollments{% endblock %}
+{% block page_subtitle %}{% endblock %}
 
 {% block sidebar_nav %}
 {% include "admin/_sidebar.html" %}
@@ -21,7 +21,7 @@
                     <td>{{ c.title }}</td>
                     <td>{{ c.instructor_name or '—' }}</td>
                     <td>{{ c.enrolled_count }}</td>
-                    <td><button class="btn btn-ghost btn-sm" data-roster-course="{{ c.id }}" data-course-code="{{ c.code }}">Roster & Grades</button></td>
+                    <td><button class="btn btn-ghost btn-sm" data-roster-course="{{ c.id }}" data-course-code="{{ c.code }}">View Roster</button></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -65,7 +65,6 @@
 
 {% block scripts %}
 <script>
-const GRADES = {{ grade_letters | tojson }};
 let activeCourseId = null;
 
 document.querySelectorAll('[data-roster-course]').forEach((btn) => {
@@ -115,24 +114,16 @@ async function loadRoster(courseId, code) {
             return;
         }
 
-        const gradeOptions = GRADES.map((g) => `<option value="${g}">${g}</option>`).join('');
         content.innerHTML = `
             <div class="table-wrap">
                 <table class="data-table">
-                    <thead><tr><th>Roll</th><th>Name</th><th>Status</th><th>Grade</th><th></th><th></th></tr></thead>
+                    <thead><tr><th>Roll</th><th>Name</th><th>Status</th><th></th></tr></thead>
                     <tbody>
                         ${data.roster.map((s) => `
                             <tr>
                                 <td>${s.student_number}</td>
                                 <td>${s.first_name} ${s.last_name}</td>
                                 <td><span class="badge badge-blue">${s.status}</span></td>
-                                <td>
-                                    <select class="form-select" data-grade-select="${s.enrollment_id}" style="min-width:5rem;">
-                                        <option value="">—</option>
-                                        ${gradeOptions}
-                                    </select>
-                                </td>
-                                <td><button class="btn btn-primary btn-sm" data-save-grade="${s.enrollment_id}">Save</button></td>
                                 <td>
                                     ${['enrolled', 'waitlisted'].includes(s.status)
                                         ? `<button class="btn btn-danger btn-sm" data-drop-enrollment="${s.enrollment_id}">Drop</button>`
@@ -144,33 +135,6 @@ async function loadRoster(courseId, code) {
                 </table>
             </div>
         `;
-
-        data.roster.forEach((s) => {
-            if (s.grade) {
-                const sel = content.querySelector(`[data-grade-select="${s.enrollment_id}"]`);
-                if (sel) sel.value = s.grade;
-            }
-        });
-
-        content.querySelectorAll('[data-save-grade]').forEach((saveBtn) => {
-            saveBtn.addEventListener('click', async () => {
-                const enrollmentId = saveBtn.dataset.saveGrade;
-                const grade = content.querySelector(`[data-grade-select="${enrollmentId}"]`).value;
-                if (!grade) {
-                    UniERP.showToast('Select a grade first.', 'error');
-                    return;
-                }
-                try {
-                    const res = await UniERP.apiFetch('/api/admin/grades', {
-                        method: 'POST',
-                        body: JSON.stringify({ enrollment_id: parseInt(enrollmentId, 10), grade }),
-                    });
-                    UniERP.showToast(res.message, 'success');
-                } catch (err) {
-                    UniERP.showToast(err.message, 'error');
-                }
-            });
-        });
 
         content.querySelectorAll('[data-drop-enrollment]').forEach((dropBtn) => {
             dropBtn.addEventListener('click', async () => {
