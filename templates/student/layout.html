@@ -12,7 +12,9 @@
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/aurora-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portal-theme.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/student-portal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/motion.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body class="student-portal-body">
@@ -25,14 +27,6 @@
             {% if student_profile is defined and student_profile %}
             <p class="portal-welcome">Welcome, <strong>{{ student_profile.first_name }}</strong></p>
             {% endif %}
-            <button type="button" class="theme-toggle portal-theme-toggle" aria-label="Switch to light mode" title="Light mode" hidden>
-                <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-                </svg>
-                <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M3 12h2m14 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 7a5 5 0 100 10 5 5 0 000-10z"/>
-                </svg>
-            </button>
             <div style="position:relative;">
                 <button class="notification-bell portal-notify" id="notification-bell" aria-label="Notifications">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
