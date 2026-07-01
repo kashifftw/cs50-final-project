@@ -26,12 +26,18 @@ from werkzeug.utils import secure_filename
 
 from admission import (
     allocate_roll_number,
+    build_roll_number_from_login,
     bulk_enroll_students,
+    compose_session_token,
     create_admission_session,
     enroll_student_record,
     get_admission_session,
     get_admission_sessions,
+    get_login_degree_options,
     parse_students_csv,
+    parse_structured_login_value,
+    resolve_department_id,
+    split_session_token,
     student_exists,
 )
 from database import Database
@@ -114,6 +120,33 @@ GRADE_POINTS = {
     "D": 1.0,
     "F": 0.0,
 }
+
+
+def authenticate_student_structured(session_token, department_code, roll_sequence, password):
+    """
+    Authenticate using Fa23 / BSCS / 333 style credentials.
+
+    Verifies session, department, roll sequence, and password.
+    """
+    roll_number = build_roll_number_from_login(session_token, roll_sequence)
+    department_id = resolve_department_id(db, department_code)
+    if not roll_number or not department_id or not password:
+        return None
+
+    rows = db.execute(
+        """
+        SELECT u.* FROM users u
+        JOIN students s ON s.user_id = u.id
+        WHERE u.role = 'student' AND u.is_active = 1 AND s.is_active = 1
+          AND s.student_number = ?
+          AND s.department_id = ?
+        """,
+        roll_number,
+        department_id,
+    )
+    if not rows or not check_password_hash(rows[0]["hash"], password):
+        return None
+    return rows[0]
 
 
 def authenticate_student(roll_number, password):
@@ -609,26 +642,51 @@ def index():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Authenticate a student using roll number, university email, and password."""
-    form_credential = ""
+    """Authenticate a student using session, degree, roll number, and password."""
+    degree_options = get_login_degree_options(db)
+    form_values = {
+        "session_season": "",
+        "session_year": "",
+        "department_code": "",
+        "roll_sequence": "",
+        "degree_options": degree_options,
+    }
 
     if request.method == "GET":
         if session.get("user_id"):
             return redirect(get_dashboard_route(session.get("role")))
-        return render_template("login.html")
+        return render_template("login.html", **form_values)
 
-    credential = (request.form.get("roll_number") or request.form.get("email") or "").strip()
+    session_season = (request.form.get("session_season") or "").strip()
+    session_year = (request.form.get("session_year") or "").strip()
+    department_code = (request.form.get("department_code") or "").strip()
+    roll_sequence = (request.form.get("roll_sequence") or "").strip()
     password = request.form.get("password") or ""
-    form_credential = credential
 
-    if not credential or not password:
-        flash("Roll number or email and password are required.", "error")
-        return render_template("login.html", form_roll_number=form_credential)
+    session_token = compose_session_token(session_season, session_year) or ""
+    form_values = {
+        "session_season": session_season,
+        "session_year": session_year,
+        "department_code": department_code,
+        "roll_sequence": roll_sequence,
+        "degree_options": degree_options,
+    }
 
-    user = authenticate_student_credential(credential, password)
+    legacy_token = (request.form.get("session_token") or "").strip()
+    if not session_token and legacy_token:
+        session_token = legacy_token
+        season, year = split_session_token(legacy_token)
+        form_values["session_season"] = season
+        form_values["session_year"] = year
+
+    if not session_token or not department_code or not roll_sequence or not password:
+        flash("Session, degree, roll number, and password are required.", "error")
+        return render_template("login.html", **form_values)
+
+    user = authenticate_student_structured(session_token, department_code, roll_sequence, password)
     if not user:
-        flash("Invalid credentials. Check your roll number or university email.", "error")
-        return render_template("login.html", form_roll_number=form_credential)
+        flash("Invalid credentials. Check session, degree, roll number, and password.", "error")
+        return render_template("login.html", **form_values)
     session.clear()
     session["user_id"] = user["id"]
     session["username"] = user["username"]
@@ -768,10 +826,13 @@ def reset_password(token):
 @app.route("/logout")
 @login_required
 def logout():
-    """Clear the session and return to login."""
+    """Clear the session and return to the correct sign-in page."""
+    role = session.get("role")
     session.clear()
     flash("You have been logged out.", "success")
-    return redirect(url_for("login"))
+    if role == "admin":
+        return redirect(url_for("admin_login", logged_out=1))
+    return redirect(url_for("login", logged_out=1))
 
 
 @app.route("/dashboard")
@@ -1184,7 +1245,7 @@ def admin_students():
 @login_required
 @role_required("admin")
 def admin_enrollments():
-    """Manage enrollments and post grades per course."""
+    """Manage course rosters — enroll or drop students."""
     semester = get_active_semester()
     courses = db.execute(
         """
@@ -1206,7 +1267,6 @@ def admin_enrollments():
         semester=semester,
         courses=courses,
         students=students,
-        grade_letters=list(GRADE_POINTS.keys()),
         active_page="enrollments",
     )
 
@@ -1228,32 +1288,6 @@ def admin_announcements():
         "admin/announcements.html",
         announcements=announcements,
         active_page="announcements",
-    )
-
-
-@app.route("/admin/attendance")
-@login_required
-@role_required("admin")
-def admin_attendance():
-    """Record and manage student attendance by course."""
-    semester = get_active_semester()
-    courses = db.execute(
-        """
-        SELECT c.id, c.code, c.title, s.name AS semester_name,
-               COALESCE(f.name, c.instructor_name) AS instructor_name
-        FROM courses c
-        JOIN semesters s ON c.semester_id = s.id
-        LEFT JOIN faculty f ON c.faculty_id = f.id
-        WHERE c.semester_id = ?
-        ORDER BY c.code
-        """,
-        semester["id"] if semester else 0,
-    )
-    return render_template(
-        "admin/attendance.html",
-        semester=semester,
-        courses=courses,
-        active_page="attendance",
     )
 
 
@@ -1299,15 +1333,8 @@ def admin_fees():
 
 @app.route("/faculty/<path:legacy>")
 def faculty_legacy_redirect(legacy):
-    """Legacy faculty URLs redirect to the admin console."""
-    mapping = {
-        "manage": "admin_manage",
-        "students": "admin_students",
-        "announcements": "admin_announcements",
-        "dashboard": "admin_dashboard",
-    }
-    first = legacy.split("/")[0]
-    return redirect(url_for(mapping.get(first, "admin_dashboard")))
+    """Legacy faculty URLs — faculty console not yet available."""
+    return redirect(url_for("admin_login"))
 
 
 @app.route("/admin/users")
@@ -1374,7 +1401,13 @@ def api_notifications_read():
             session["user_id"],
         )
 
-    return jsonify({"success": True})
+    unread_row = db.execute(
+        "SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND is_read = 0",
+        session["user_id"],
+    )
+    unread_count = int(unread_row[0]["count"]) if unread_row else 0
+
+    return jsonify({"success": True, "unread_count": unread_count})
 
 
 @app.route("/api/announcements")
@@ -1729,7 +1762,7 @@ def api_student_registration_status():
     )
 
 
-# ── JSON API — admin enrollments & grades ───────────────────────────────────────
+# ── JSON API — admin enrollments ───────────────────────────────────────────────
 
 
 @app.route("/api/admin/roster/<int:course_id>")
@@ -1755,50 +1788,6 @@ def api_admin_roster(course_id):
     return jsonify({"course": course[0], "roster": roster})
 
 
-@app.route("/api/admin/grades", methods=["POST"])
-@login_required
-@role_required("admin")
-def api_admin_grades():
-    """Submit or update a letter grade for a student enrollment."""
-    data = request.get_json(silent=True) or {}
-    enrollment_id = data.get("enrollment_id")
-    grade = (data.get("grade") or "").strip().upper()
-
-    if grade not in GRADE_POINTS:
-        return jsonify({"success": False, "message": "Invalid grade letter."}), 400
-
-    enrollment = db.execute(
-        """
-        SELECT e.*, c.code, s.user_id AS student_user_id
-        FROM enrollments e
-        JOIN courses c ON e.course_id = c.id
-        JOIN students s ON e.student_id = s.id
-        WHERE e.id = ?
-        """,
-        enrollment_id,
-    )
-    if not enrollment:
-        return jsonify({"success": False, "message": "Enrollment not found."}), 404
-
-    grade_points = GRADE_POINTS[grade]
-    db.execute(
-        "UPDATE enrollments SET grade = ?, grade_points = ?, status = 'completed' WHERE id = ?",
-        grade,
-        grade_points,
-        enrollment_id,
-    )
-
-    row = enrollment[0]
-    create_notification(
-        row["student_user_id"],
-        f"Grade posted: {row['code']} — {grade}",
-        url_for("student_academics"),
-    )
-    log_audit(db, "grade_update", "enrollments", enrollment_id, {"grade": grade, "course": row["code"]})
-
-    return jsonify({"success": True, "message": f"Grade {grade} recorded.", "grade_points": grade_points})
-
-
 # ── JSON API — admin ───────────────────────────────────────────────────────────
 
 
@@ -1811,11 +1800,10 @@ def api_admin_courses():
         semester_id = request.args.get("semester_id")
         query = """
             SELECT c.*, d.code AS department_code, s.name AS semester_name,
-                   COALESCE(f.name, c.instructor_name) AS instructor_name, f.id AS faculty_id
+                   c.instructor_name
             FROM courses c
             JOIN departments d ON c.department_id = d.id
             JOIN semesters s ON c.semester_id = s.id
-            LEFT JOIN faculty f ON c.faculty_id = f.id
         """
         if semester_id:
             courses = db.execute(query + " WHERE c.semester_id = ? ORDER BY c.code", semester_id)
@@ -1835,18 +1823,13 @@ def api_admin_courses():
             return jsonify({"success": False, "message": f"Missing field: {field}"}), 400
 
     has_lab, credits = resolve_has_lab_and_credits(data)
-    faculty_id = data.get("faculty_id")
     instructor_name = (data.get("instructor_name") or "").strip() or None
-    if faculty_id:
-        fac = db.execute("SELECT name FROM faculty WHERE id = ?", faculty_id)
-        if fac:
-            instructor_name = fac[0]["name"]
 
     course_id = db.execute(
         """
         INSERT INTO courses (code, title, description, credits, has_lab, department_id, faculty_id,
                              instructor_name, semester_id, capacity, schedule_day, schedule_time, room)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
         """,
         data["code"].strip().upper(),
         data["title"].strip(),
@@ -1854,7 +1837,6 @@ def api_admin_courses():
         credits,
         1 if has_lab else 0,
         data["department_id"],
-        faculty_id,
         instructor_name,
         data["semester_id"],
         int(data["capacity"]),
@@ -1887,18 +1869,13 @@ def api_admin_course_detail(course_id):
             return jsonify({"success": False, "message": f"Missing field: {field}"}), 400
 
     has_lab, credits = resolve_has_lab_and_credits(data, existing[0])
-    faculty_id = data.get("faculty_id")
     instructor_name = (data.get("instructor_name") or "").strip() or None
-    if faculty_id:
-        fac = db.execute("SELECT name FROM faculty WHERE id = ?", faculty_id)
-        if fac:
-            instructor_name = fac[0]["name"]
 
     db.execute(
         """
         UPDATE courses
         SET code = ?, title = ?, description = ?, credits = ?, has_lab = ?, department_id = ?,
-            faculty_id = ?, instructor_name = ?, semester_id = ?, capacity = ?,
+            faculty_id = NULL, instructor_name = ?, semester_id = ?, capacity = ?,
             schedule_day = ?, schedule_time = ?, room = ?
         WHERE id = ?
         """,
@@ -1908,7 +1885,6 @@ def api_admin_course_detail(course_id):
         credits,
         1 if has_lab else 0,
         data["department_id"],
-        faculty_id,
         instructor_name,
         data["semester_id"],
         int(data["capacity"]),
@@ -2324,7 +2300,7 @@ def api_admin_student_detail(student_id):
 @login_required
 @role_required("admin")
 def api_admin_student_profile(student_id):
-    """Return a student profile with enrollments, attendance, and fee status."""
+    """Return a student profile with enrollments and fee status."""
     rows = db.execute(
         """
         SELECT s.*, u.email, d.name AS department_name, d.code AS department_code
@@ -2341,7 +2317,7 @@ def api_admin_student_profile(student_id):
     student = rows[0]
     enrollments = db.execute(
         """
-        SELECT e.id AS enrollment_id, e.status, e.grade, e.grade_points, e.enrolled_at,
+        SELECT e.id AS enrollment_id, e.status, e.enrolled_at,
                c.code, c.title, c.credits, c.has_lab, sem.name AS semester_name
         FROM enrollments e
         JOIN courses c ON e.course_id = c.id
@@ -2352,7 +2328,6 @@ def api_admin_student_profile(student_id):
         student_id,
     )
     enrollments = [enrich_course_credits(row) for row in enrollments]
-    attendance = get_student_attendance(db, student_id)
     fee_data = fetch_student_fees(db, student_id)
     semester = get_active_semester()
     credit_summary = (
@@ -2364,9 +2339,7 @@ def api_admin_student_profile(student_id):
     return jsonify(
         {
             "student": student,
-            "cgpa": calculate_gpa(student_id),
             "enrollments": enrollments,
-            "attendance": attendance,
             "fees": fee_data,
             "credit_summary": credit_summary,
         }
@@ -2593,7 +2566,7 @@ def api_student_profile_update():
     return jsonify({"success": True, "message": "Profile updated.", "profile_picture": profile_picture})
 
 
-# ── Admin enrollments, attendance, fees APIs ───────────────────────────────────
+# ── Admin enrollments & fees APIs ──────────────────────────────────────────────
 
 
 @app.route("/api/admin/roster/<int:course_id>/enroll", methods=["POST"])
@@ -2671,71 +2644,6 @@ def api_admin_manual_drop(course_id):
     db.execute("UPDATE enrollments SET status = 'dropped' WHERE id = ?", enrollment_id)
     log_audit(db, "admin_drop", "enrollments", enrollment_id, {"course_id": course_id})
     return jsonify({"success": True, "message": f"Dropped from {enrollment[0]['code']}."})
-
-
-@app.route("/api/admin/attendance/<int:course_id>")
-@login_required
-@role_required("admin")
-def api_admin_attendance_roster(course_id):
-    """Return roster with attendance summary for a course."""
-    rows = db.execute(
-        """
-        SELECT e.id AS enrollment_id, s.student_number, s.first_name, s.last_name, e.status
-        FROM enrollments e
-        JOIN students s ON e.student_id = s.id
-        WHERE e.course_id = ? AND e.status IN ('enrolled', 'completed')
-        ORDER BY s.student_number
-        """,
-        course_id,
-    )
-    result = []
-    for row in rows:
-        from portal_services import attendance_percentage
-
-        pct, present, total = attendance_percentage(db, row["enrollment_id"])
-        sessions = db.execute(
-            "SELECT session_date, status FROM attendance_records WHERE enrollment_id = ? ORDER BY session_date",
-            row["enrollment_id"],
-        )
-        result.append({**dict(row), "percentage": pct, "present": present, "total_sessions": total, "sessions": sessions})
-    return jsonify(result)
-
-
-@app.route("/api/admin/attendance", methods=["POST"])
-@login_required
-@role_required("admin")
-def api_admin_attendance_record():
-    """Record or update attendance for one enrollment session."""
-    data = request.get_json(silent=True) or {}
-    enrollment_id = data.get("enrollment_id")
-    session_date = (data.get("session_date") or "").strip()
-    status = (data.get("status") or "present").strip()
-
-    if not enrollment_id or not session_date:
-        return jsonify({"success": False, "message": "Enrollment and date required."}), 400
-    if status not in ("present", "absent", "late"):
-        return jsonify({"success": False, "message": "Invalid status."}), 400
-
-    existing = db.execute(
-        "SELECT id FROM attendance_records WHERE enrollment_id = ? AND session_date = ?",
-        enrollment_id,
-        session_date,
-    )
-    if existing:
-        db.execute(
-            "UPDATE attendance_records SET status = ? WHERE id = ?",
-            status,
-            existing[0]["id"],
-        )
-    else:
-        db.execute(
-            "INSERT INTO attendance_records (enrollment_id, session_date, status) VALUES (?, ?, ?)",
-            enrollment_id,
-            session_date,
-            status,
-        )
-    log_audit(db, "attendance_record", "attendance_records", enrollment_id, {"date": session_date, "status": status})
-    return jsonify({"success": True, "message": "Attendance recorded."})
 
 
 @app.route("/api/admin/fee-items", methods=["GET", "POST"])
