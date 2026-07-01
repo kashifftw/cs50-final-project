@@ -2,6 +2,7 @@
 
 import csv
 import io
+import re
 from typing import Any
 
 from werkzeug.security import generate_password_hash
@@ -11,6 +12,123 @@ def format_roll_number(year: int, season: str, sequence: int) -> str:
     """Build a roll number such as 2025-F-042 for Fall or 2026-S-001 for Spring."""
     season_letter = "F" if season == "fall" else "S"
     return f"{year}-{season_letter}-{sequence:03d}"
+
+
+def parse_session_token(token: str) -> tuple[str, int] | None:
+    """
+    Parse admission session shorthand such as Fa23 or Sp24.
+
+    Returns (season, full_year) or None when invalid.
+    """
+    match = re.match(r"^(Fa|Sp)(\d{2})$", (token or "").strip(), re.IGNORECASE)
+    if not match:
+        return None
+
+    season = "fall" if match.group(1).lower() == "fa" else "spring"
+    year_suffix = int(match.group(2))
+    year = 2000 + year_suffix
+    return season, year
+
+
+def normalize_department_code(code: str) -> str:
+    """Normalize department codes, including common degree aliases."""
+    normalized = (code or "").strip().upper()
+    aliases = {
+        "BSCS": "CS",
+        "BSIT": "CS",
+        "BBA": "BUS",
+        "BENG": "ENG",
+    }
+    return aliases.get(normalized, normalized)
+
+
+def parse_structured_login_value(value: str) -> tuple[str, str, str] | None:
+    """
+    Parse Fa23/BSCS/333 style login strings.
+
+    Returns (session_token, department_code, roll_sequence) or None.
+    """
+    match = re.match(
+        r"^(Fa|Sp)(\d{2})\s*/\s*([A-Za-z]{2,10})\s*/\s*(\d{1,4})$",
+        (value or "").strip(),
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+
+    session_token = f"{match.group(1).capitalize()}{match.group(2)}"
+    if session_token.lower().startswith("sp"):
+        session_token = f"Sp{match.group(2)}"
+    else:
+        session_token = f"Fa{match.group(2)}"
+
+    return session_token, match.group(3).upper(), match.group(4)
+
+
+def build_roll_number_from_login(session_token: str, roll_sequence: str) -> str | None:
+    """Convert Fa23 + 333 into the stored roll number format (e.g. 2023-F-333)."""
+    parsed = parse_session_token(session_token)
+    if not parsed:
+        return None
+
+    season, year = parsed
+    try:
+        sequence = int((roll_sequence or "").strip())
+    except (TypeError, ValueError):
+        return None
+
+    if sequence < 1 or sequence > 9999:
+        return None
+
+    return format_roll_number(year, season, sequence)
+
+
+def compose_session_token(season_prefix: str, year_suffix: str) -> str | None:
+    """Build Fa24 / Sp23 token from dropdown season and 2-digit year."""
+    prefix = (season_prefix or "").strip().capitalize()
+    year_part = (year_suffix or "").strip()
+
+    if prefix not in ("Fa", "Sp"):
+        return None
+    if not re.match(r"^\d{2}$", year_part):
+        return None
+
+    return f"{prefix}{year_part}"
+
+
+def split_session_token(token: str) -> tuple[str, str]:
+    """Split Fa24 into (Fa, 24) for login form repopulation."""
+    parsed = parse_session_token(token)
+    if not parsed:
+        return "", ""
+
+    season, year = parsed
+    prefix = "Fa" if season == "fall" else "Sp"
+    return prefix, f"{year % 100:02d}"
+
+
+LOGIN_DEGREE_LABELS = {
+    "CS": "BSCS",
+    "MATH": "BS Math",
+    "BUS": "BBA",
+    "ENG": "BEng",
+    "BIO": "BS Biology",
+}
+
+
+def get_login_degree_options(db) -> list[dict[str, str]]:
+    """Degree choices shown on the student login form."""
+    rows = db.execute("SELECT code, name FROM departments ORDER BY name")
+    options: list[dict[str, str]] = []
+    for row in rows:
+        display_code = LOGIN_DEGREE_LABELS.get(row["code"], row["code"])
+        options.append(
+            {
+                "code": display_code,
+                "label": f"{display_code} — {row['name']}",
+            }
+        )
+    return options
 
 
 def get_admission_sessions(db, open_only: bool = False) -> list[dict[str, Any]]:
@@ -83,7 +201,7 @@ def allocate_roll_number(db, session_id: int) -> str:
 
 def resolve_department_id(db, department_code: str | None) -> int | None:
     """Look up a department id from its code."""
-    code = (department_code or "").strip().upper()
+    code = normalize_department_code(department_code)
     if not code:
         return None
     rows = db.execute("SELECT id FROM departments WHERE code = ?", code)
