@@ -81,7 +81,8 @@ const UniERP = {
      * @param {string} itemSelector
      */
     animateStagger(container, itemSelector) {
-        if (this.prefersReducedMotion()) return;
+        const portal = document.documentElement.getAttribute('data-portal');
+        if (portal === 'student' || portal === 'admin' || this.prefersReducedMotion()) return;
 
         const root = typeof container === 'string' ? document.querySelector(container) : container;
         if (!root) return;
@@ -95,11 +96,14 @@ const UniERP = {
      * Animate progress bars from 0 to their target width.
      */
     initProgressBars() {
+        const portal = document.documentElement.getAttribute('data-portal');
+        const instant = portal === 'student' || portal === 'admin';
+
         document.querySelectorAll('.progress-fill[data-progress]').forEach((bar) => {
             const target = bar.dataset.progress;
             bar.style.setProperty('--progress-target', `${target}%`);
 
-            if (this.prefersReducedMotion()) {
+            if (instant || this.prefersReducedMotion()) {
                 bar.classList.add('is-animated');
                 return;
             }
@@ -177,33 +181,108 @@ const UniERP = {
         });
     },
 
-    async loadNotifications() {
+    isNotificationUnread(notification) {
+        return Number(notification.is_read) === 0;
+    },
+
+    updateNotificationBadge(count) {
+        const bell = document.getElementById('notification-bell');
+        if (!bell) return;
+
+        const unread = Math.max(0, Number(count) || 0);
+        let badge = bell.querySelector('.notification-badge');
+
+        if (unread <= 0) {
+            badge?.remove();
+            return;
+        }
+
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'notification-badge';
+            bell.appendChild(badge);
+        }
+
+        badge.textContent = String(unread);
+    },
+
+    async markAllNotificationsRead() {
+        const data = await this.apiFetch('/api/notifications/read', {
+            method: 'POST',
+            body: JSON.stringify({}),
+        });
+        this.updateNotificationBadge(data.unread_count ?? 0);
+        return data;
+    },
+
+    async markNotificationRead(notificationId) {
+        const data = await this.apiFetch('/api/notifications/read', {
+            method: 'POST',
+            body: JSON.stringify({ notification_id: notificationId }),
+        });
+        this.updateNotificationBadge(data.unread_count ?? 0);
+        return data;
+    },
+
+    async loadNotifications(markAllRead = false) {
         const panel = document.getElementById('notification-panel');
         if (!panel) return;
 
         panel.innerHTML = '<div class="loading-overlay" style="padding:1rem;"><span class="loading-spinner"></span></div>';
 
         try {
+            if (markAllRead) {
+                await this.markAllNotificationsRead();
+            }
+
             const notifications = await this.apiFetch('/api/notifications');
+            const unreadCount = notifications.filter((n) => this.isNotificationUnread(n)).length;
+            this.updateNotificationBadge(unreadCount);
+
             if (notifications.length === 0) {
                 panel.innerHTML = '<p class="empty-state" style="padding:1rem;">No notifications</p>';
                 return;
             }
 
             panel.innerHTML = `<ul class="notification-list">${notifications.map(n => `
-                <li class="notification-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}">
-                    ${n.link ? `<a href="${n.link}">${n.message}</a>` : n.message}
+                <li class="notification-item ${this.isNotificationUnread(n) ? 'unread' : ''}" data-id="${n.id}" role="button" tabindex="0">
+                    ${n.link ? `<a href="${n.link}" class="notification-link">${n.message}</a>` : `<span class="notification-message">${n.message}</span>`}
                     <div class="notification-time">${n.created_at}</div>
                 </li>
             `).join('')}</ul>`;
 
+            const handleMarkRead = async (item) => {
+                const id = parseInt(item.dataset.id, 10);
+                const link = item.querySelector('.notification-link')?.getAttribute('href');
+
+                if (item.classList.contains('unread')) {
+                    try {
+                        await this.markNotificationRead(id);
+                        item.classList.remove('unread');
+                    } catch (err) {
+                        this.showToast(err.message, 'error');
+                        return;
+                    }
+                }
+
+                if (link) {
+                    window.location.href = link;
+                    return;
+                }
+
+                await this.loadNotifications();
+            };
+
             panel.querySelectorAll('.notification-item').forEach(item => {
-                item.addEventListener('click', async () => {
-                    await this.apiFetch('/api/notifications/read', {
-                        method: 'POST',
-                        body: JSON.stringify({ notification_id: parseInt(item.dataset.id) }),
-                    });
-                    item.classList.remove('unread');
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    handleMarkRead(item);
+                });
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleMarkRead(item);
+                    }
                 });
             });
         } catch (err) {
@@ -216,17 +295,18 @@ const UniERP = {
         const dropdown = document.getElementById('notification-dropdown');
         if (!bell || !dropdown) return;
 
-        bell.addEventListener('click', (e) => {
+        bell.addEventListener('click', async (e) => {
             e.stopPropagation();
             this.closeProfileMenu();
+            const isOpening = !dropdown.classList.contains('open');
             dropdown.classList.toggle('open');
-            if (dropdown.classList.contains('open')) {
-                this.loadNotifications();
+            if (isOpening) {
+                await this.loadNotifications(true);
             }
         });
 
         document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target) && e.target !== bell) {
+            if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
                 dropdown.classList.remove('open');
             }
         });
@@ -311,8 +391,6 @@ const UniERP = {
     initPageUX() {
         this.initProgressBars();
         this.initFlashDismiss();
-        this.animateStagger('.course-grid', '.course-card');
-        this.animateStagger('.schedule-grid', '.schedule-item');
     },
 
     getTheme() {
