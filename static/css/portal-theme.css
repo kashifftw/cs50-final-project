@@ -1,0 +1,836 @@
+/**
+ * Shared ERP portal theme — student & admin
+ * Gray layers, Gray Cloud accents, Azure active states
+ */
+
+html[data-portal="student"],
+html[data-portal="admin"] {
+    color-scheme: dark;
+
+    /* Shell */
+    --erp-bg: #232323;
+    --erp-bg-nav: #1c1c1c;
+    --erp-bg-topbar: #282828;
+    --erp-bg-card: #2e2e2e;
+    --erp-bg-card-header: #363636;
+    --erp-bg-card-body: #292929;
+    --erp-bg-table-head: #343434;
+    --erp-bg-table-hover: #323232;
+    --erp-border: #424242;
+    --erp-border-soft: #383838;
+    --erp-border-strong: #505050;
+
+    /* Text */
+    --erp-text: #f2f2f0;
+    --erp-text-muted: #b0b0aa;
+    --erp-text-subtle: #8a8a85;
+
+    /* Gray Cloud */
+    --erp-cloud: #b6b6b4;
+    --erp-cloud-dark: #a3a3a1;
+    --erp-cloud-border: #969694;
+    --erp-cloud-text: #222220;
+
+    /* Azure brand */
+    --erp-brand: #f0ffff;
+    --erp-brand-hover: #d8f8f8;
+    --erp-brand-border: #b8e8e8;
+    --erp-brand-text: #342d7e;
+    --erp-brand-shadow: rgba(240, 255, 255, 0.35);
+
+    /* Soft white pills & actions (ON badges, buttons, status chips) */
+    --erp-pill-bg: #f4f4f1;
+    --erp-pill-bg-hover: #fafaf8;
+    --erp-pill-border: #d8d8d4;
+    --erp-pill-border-hover: #c8c8c4;
+    --erp-pill-text: #111111;
+    --erp-pill-on-text: #0f3d24;
+    --erp-pill-off-text: #7f1d1d;
+    --erp-pill-warn-text: #78350f;
+
+    --erp-action-bg: var(--erp-pill-bg);
+    --erp-action-hover: var(--erp-pill-bg-hover);
+    --erp-action-border: var(--erp-pill-border);
+    --erp-action-text: var(--erp-pill-text);
+    --erp-bg-muted: #292929;
+
+    /* Replace tinted status backgrounds with light white pills */
+    --success-bg: var(--erp-pill-bg);
+    --warning-bg: var(--erp-pill-bg);
+    --danger-bg: var(--erp-pill-bg);
+    --danger-hover-bg: rgba(248, 113, 113, 0.14);
+    --danger-hover-text: #fca5a5;
+
+    /* Legacy portal tokens used by components */
+    --portal-reg-banner-bg: var(--erp-bg-card);
+    --portal-reg-banner-border: var(--erp-border);
+    --portal-reg-banner-text: var(--erp-text);
+    --portal-bar-track: var(--erp-bg-card-body);
+    --portal-bar-fill: var(--erp-cloud);
+    --portal-widget-header: var(--erp-bg-card-header);
+    --portal-stat-icon-red-bg: var(--erp-cloud-dark);
+    --portal-stat-icon-red-fg: #ffffff;
+    --portal-stat-icon-green-bg: var(--erp-cloud-dark);
+    --portal-stat-icon-green-fg: #ffffff;
+    --portal-stat-icon-blue-bg: var(--erp-cloud-dark);
+    --portal-stat-icon-blue-fg: #ffffff;
+    --portal-stat-icon-brown-bg: var(--erp-cloud-dark);
+    --portal-stat-icon-brown-fg: #ffffff;
+
+    /* Map legacy Aurora tokens */
+    --portal-bg: var(--erp-bg);
+    --portal-bg-image: none;
+    --portal-surface: var(--erp-bg-card);
+    --portal-nav-bg: var(--erp-bg-nav);
+    --portal-topbar-bg: var(--erp-bg-topbar);
+    --portal-border: var(--erp-border);
+    --portal-text: var(--erp-text);
+    --portal-text-muted: var(--erp-text-muted);
+    --portal-icon: var(--erp-text-subtle);
+    --portal-icon-hover-bg: rgba(240, 255, 255, 0.08);
+    --portal-widget-header: var(--erp-bg-card-header);
+    --portal-glow: none;
+
+    --bg: var(--erp-bg);
+    --bg-subtle: none;
+    --surface: var(--erp-bg-card);
+    --surface-muted: var(--erp-bg-card-body);
+    --surface-elevated: var(--erp-bg-card-header);
+    --border: var(--erp-border);
+    --border-strong: var(--erp-border-strong);
+
+    --sidebar-bg: var(--erp-bg-nav);
+    --sidebar-border: var(--erp-border-soft);
+    --sidebar-text: var(--erp-text-muted);
+    --sidebar-text-active: var(--erp-text);
+    --sidebar-hover: rgba(255, 255, 255, 0.05);
+    --sidebar-active: rgba(240, 255, 255, 0.1);
+    --sidebar-accent: var(--erp-brand);
+
+    --primary: var(--erp-brand);
+    --primary-hover: var(--erp-brand-hover);
+    --primary-light: rgba(240, 255, 255, 0.1);
+    --primary-soft: rgba(240, 255, 255, 0.2);
+    --accent: var(--erp-cloud);
+    --text-primary: var(--erp-text);
+    --text-secondary: #d8d8d4;
+    --text-muted: var(--erp-text-muted);
+    --focus-ring: rgba(240, 255, 255, 0.25);
+    --input-focus-bg: var(--erp-bg-card-body);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Shared surfaces ─────────────────────────────────────────────────────── */
+
+html[data-portal="student"] body,
+html[data-portal="admin"] body {
+    background: var(--erp-bg);
+    background-image: none;
+}
+
+html[data-portal="student"] .btn-primary,
+html[data-portal="student"] .btn-violet,
+html[data-portal="student"] .btn-secondary,
+html[data-portal="student"] .btn-success,
+html[data-portal="admin"] .btn-primary,
+html[data-portal="admin"] .btn-violet,
+html[data-portal="admin"] .btn-secondary,
+html[data-portal="admin"] .btn-success {
+    background: var(--erp-action-bg);
+    border: 1px solid var(--erp-action-border);
+    color: var(--erp-pill-text);
+    font-weight: 600;
+    box-shadow: none;
+}
+
+html[data-portal="student"] .btn-primary:hover,
+html[data-portal="student"] .btn-violet:hover,
+html[data-portal="student"] .btn-secondary:hover,
+html[data-portal="student"] .btn-success:hover,
+html[data-portal="admin"] .btn-primary:hover,
+html[data-portal="admin"] .btn-violet:hover,
+html[data-portal="admin"] .btn-secondary:hover,
+html[data-portal="admin"] .btn-success:hover {
+    background: var(--erp-action-hover);
+    border-color: var(--erp-action-border);
+    color: var(--erp-pill-text);
+    box-shadow: none;
+}
+
+html[data-portal="student"] .glass-card,
+html[data-portal="admin"] .glass-card {
+    background: var(--erp-bg-card);
+    border: 1px solid var(--erp-border);
+    box-shadow: none;
+}
+
+html[data-portal="student"] .glass-card:hover,
+html[data-portal="admin"] .glass-card:hover {
+    border-color: var(--erp-border-strong);
+    box-shadow: var(--shadow-md);
+}
+
+html[data-portal="student"] .stat-card,
+html[data-portal="admin"] .stat-card {
+    background: var(--erp-cloud);
+    border: 1px solid var(--erp-cloud-border);
+    color: var(--erp-cloud-text);
+}
+
+html[data-portal="student"] .stat-card .stat-label,
+html[data-portal="admin"] .stat-card .stat-label {
+    color: #555550;
+}
+
+html[data-portal="student"] .stat-card .stat-value,
+html[data-portal="admin"] .stat-card .stat-value {
+    color: var(--erp-cloud-text);
+}
+
+html[data-portal="student"] .stat-card:hover,
+html[data-portal="admin"] .stat-card:hover {
+    border-color: #8a8a88;
+    box-shadow: none;
+}
+
+html[data-portal="student"] .filter-bar,
+html[data-portal="admin"] .filter-bar {
+    background: var(--erp-bg-card);
+    border: 1px solid var(--erp-border);
+}
+
+html[data-portal="student"] .course-card,
+html[data-portal="admin"] .course-card {
+    background: var(--erp-bg-card);
+    border-color: var(--erp-border);
+}
+
+html[data-portal="student"] .course-card:hover,
+html[data-portal="admin"] .course-card:hover {
+    border-color: var(--erp-border-strong);
+    box-shadow: var(--shadow-md);
+}
+
+html[data-portal="student"] .form-input,
+html[data-portal="student"] .form-select,
+html[data-portal="student"] .form-textarea,
+html[data-portal="admin"] .form-input,
+html[data-portal="admin"] .form-select,
+html[data-portal="admin"] .form-textarea {
+    background: var(--erp-bg-card-body);
+    border-color: var(--erp-border);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .form-input:focus,
+html[data-portal="student"] .form-select:focus,
+html[data-portal="student"] .form-textarea:focus,
+html[data-portal="admin"] .form-input:focus,
+html[data-portal="admin"] .form-select:focus,
+html[data-portal="admin"] .form-textarea:focus {
+    border-color: var(--erp-brand-border);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+html[data-portal="student"] .data-table th,
+html[data-portal="admin"] .data-table th {
+    background: var(--erp-bg-table-head);
+    color: var(--erp-text-muted);
+}
+
+html[data-portal="student"] .data-table td,
+html[data-portal="admin"] .data-table td {
+    color: var(--erp-text);
+    border-color: var(--erp-border-soft);
+}
+
+html[data-portal="student"] .data-table tbody tr:hover,
+html[data-portal="admin"] .data-table tbody tr:hover {
+    background: var(--erp-bg-table-hover);
+}
+
+html[data-portal="student"] .btn-ghost,
+html[data-portal="admin"] .btn-ghost {
+    border-color: var(--erp-border);
+    color: var(--erp-text-muted);
+}
+
+html[data-portal="student"] .btn-ghost:hover,
+html[data-portal="admin"] .btn-ghost:hover {
+    background: var(--erp-bg-muted, var(--erp-bg-card-body));
+    border-color: var(--erp-border-strong);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] ::selection,
+html[data-portal="admin"] ::selection {
+    background: #555555;
+    color: #fff;
+}
+
+html[data-portal="student"] a:focus-visible,
+html[data-portal="student"] button:focus-visible,
+html[data-portal="admin"] a:focus-visible,
+html[data-portal="admin"] button:focus-visible {
+    outline: 2px solid var(--erp-brand-border);
+    outline-offset: 2px;
+}
+
+/* ── Admin shell ─────────────────────────────────────────────────────────── */
+
+html[data-portal="admin"] .main-content {
+    background: var(--erp-bg);
+}
+
+html[data-portal="admin"] .page-header {
+    background: var(--erp-bg-topbar);
+    border-bottom: 1px solid var(--erp-border-soft);
+    backdrop-filter: none;
+}
+
+html[data-portal="admin"] .page-body {
+    background: var(--erp-bg);
+}
+
+html[data-portal="admin"] .page-title {
+    color: var(--erp-text);
+}
+
+html[data-portal="admin"] .page-subtitle {
+    color: var(--erp-text-muted);
+}
+
+html[data-portal="admin"] .sidebar {
+    background: var(--erp-bg-nav);
+    border-right-color: var(--erp-border-soft);
+    box-shadow: none;
+}
+
+html[data-portal="admin"] .brand-icon {
+    background: var(--erp-cloud);
+    border: 1px solid var(--erp-cloud-border);
+    color: #111111;
+    font-weight: 900;
+    box-shadow: none;
+}
+
+html[data-portal="admin"] .brand-text {
+    color: var(--erp-text);
+}
+
+html[data-portal="admin"] .sidebar-nav a {
+    color: var(--erp-text-muted);
+}
+
+html[data-portal="admin"] .sidebar-nav a:hover {
+    background: var(--sidebar-hover);
+    color: var(--erp-text);
+}
+
+html[data-portal="admin"] .sidebar-nav a.active {
+    background: var(--erp-brand);
+    border-left-color: var(--erp-brand-border);
+    color: var(--erp-brand-text);
+}
+
+html[data-portal="admin"] .user-avatar {
+    background: var(--erp-brand);
+    color: var(--erp-brand-text);
+    border: 1px solid var(--erp-brand-border);
+}
+
+html[data-portal="admin"] .notification-bell {
+    background: var(--erp-cloud);
+    border: 1px solid var(--erp-cloud-border);
+    color: var(--erp-cloud-text);
+}
+
+html[data-portal="admin"] .notification-bell:hover {
+    background: var(--erp-cloud-dark);
+    border-color: var(--erp-cloud-border);
+    color: var(--erp-cloud-text);
+}
+
+html[data-portal="admin"] #notification-dropdown {
+    background: var(--erp-bg-card-header) !important;
+    border: 1px solid var(--erp-border) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+html[data-portal="admin"] .modal-overlay {
+    background: rgba(0, 0, 0, 0.65) !important;
+}
+
+html[data-portal="admin"] .tab-btn.active {
+    color: var(--erp-brand-text);
+    border-bottom-color: var(--erp-brand);
+}
+
+html[data-portal="admin"] .theme-toggle {
+    display: none !important;
+}
+
+html[data-portal="admin"] .sidebar-footer .btn-ghost:hover {
+    background: rgba(251, 113, 133, 0.12);
+    border-color: rgba(251, 113, 133, 0.3);
+    color: var(--danger);
+}
+
+/* ── Student all pages ───────────────────────────────────────────────────── */
+
+html[data-portal="student"] .portal-inner-header h1,
+html[data-portal="student"] .portal-page-title {
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .portal-inner-header p,
+html[data-portal="student"] .portal-page-subtitle {
+    color: var(--erp-text-muted);
+}
+
+html[data-portal="student"] .portal-footer {
+    color: var(--erp-text-subtle);
+    border-top-color: var(--erp-border-soft);
+}
+
+html[data-portal="student"] .portal-banner-open,
+html[data-portal="student"] .portal-banner-closed {
+    background: var(--erp-bg-card);
+    border: 1px solid var(--erp-border);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .schedule-item {
+    background: var(--erp-bg-card);
+    border-color: var(--erp-border);
+}
+
+html[data-portal="student"] .widget-card {
+    background: var(--erp-bg-card);
+    border-color: var(--erp-border);
+}
+
+html[data-portal="student"] .widget-header {
+    background: var(--erp-bg-card-header);
+    border-bottom-color: var(--erp-border-soft);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .widget-body {
+    background: var(--erp-bg-card-body);
+}
+
+html[data-portal="student"] .widget-link {
+    color: var(--erp-text-muted);
+}
+
+html[data-portal="student"] .widget-link:hover {
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .portal-reg-banner {
+    background: var(--erp-bg-card);
+    border: 1px solid var(--erp-border);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .portal-banner-open,
+html[data-portal="student"] .portal-banner-closed {
+    background: var(--erp-bg-card);
+    border: 1px solid var(--erp-border);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .portal-credit-banner {
+    background: var(--erp-bg-card-header);
+    border: 1px solid var(--erp-border);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .portal-credit-banner--full {
+    background: var(--danger-bg);
+    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+html[data-portal="student"] .course-credit-badge {
+    color: var(--erp-brand-text);
+}
+
+html[data-portal="student"] .widget-header,
+html[data-portal="student"] .widget-header-navy,
+html[data-portal="student"] .widget-header-purple,
+html[data-portal="student"] .widget-header-blue,
+html[data-portal="student"] .widget-header-maroon {
+    background: var(--erp-bg-card-header);
+    border-bottom-color: var(--erp-border-soft);
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .widget-link:hover {
+    color: var(--erp-text);
+    background: rgba(240, 255, 255, 0.08);
+}
+
+html[data-portal="student"] .widget-table th {
+    background: var(--erp-bg-table-head);
+    color: var(--erp-text-muted);
+    border-color: var(--erp-border-soft);
+}
+
+html[data-portal="student"] .widget-table td {
+    color: var(--erp-text);
+    border-color: var(--erp-border-soft);
+}
+
+html[data-portal="student"] .widget-table tbody tr:hover {
+    background: var(--erp-bg-table-hover);
+}
+
+html[data-portal="student"] .widget-empty {
+    color: var(--erp-text-subtle);
+}
+
+html[data-portal="student"] .portal-bar-track,
+html[data-portal="student"] .attendance-bar-track {
+    background: var(--erp-bg-card-body);
+}
+
+html[data-portal="student"] .portal-bar-fill,
+html[data-portal="student"] .attendance-bar-fill {
+    background: var(--erp-cloud);
+}
+
+html[data-portal="student"] .query-reply {
+    background: var(--erp-bg-card-body);
+    border: 1px solid var(--erp-border-soft);
+}
+
+html[data-portal="student"] .portal-profile-dropdown,
+html[data-portal="student"] .portal-notify-dropdown {
+    background: var(--erp-bg-card-header);
+    border-color: var(--erp-border);
+}
+
+html[data-portal="admin"] .sidebar-nav a {
+    border-left: 3px solid transparent;
+}
+
+html[data-portal="admin"] .page-body .data-table th {
+    background: var(--erp-bg-table-head);
+}
+
+html[data-portal="admin"] .page-body .data-table tbody tr:hover {
+    background: var(--erp-bg-table-hover);
+}
+
+html[data-portal="admin"] .modal-content,
+html[data-portal="admin"] .glass-card.modal {
+    background: var(--erp-bg-card);
+    border-color: var(--erp-border);
+}
+
+html[data-portal="student"] .glass-card-title,
+html[data-portal="admin"] .glass-card-title {
+    color: var(--erp-text);
+}
+
+html[data-portal="student"] .glass-card-header,
+html[data-portal="admin"] .glass-card-header {
+    border-bottom-color: var(--erp-border-soft);
+}
+
+html[data-portal="student"] .portal-main .dash-stat-icon-red,
+html[data-portal="student"] .portal-main .dash-stat-icon-green,
+html[data-portal="student"] .portal-main .dash-stat-icon-blue,
+html[data-portal="student"] .portal-main .dash-stat-icon-brown {
+    background: var(--erp-cloud-dark) !important;
+    color: #ffffff !important;
+}
+
+html[data-portal="student"] .dash-stat-icon svg,
+html[data-portal="admin"] .dash-stat-icon svg {
+    color: #ffffff;
+}
+
+html[data-portal="student"] .semester-gpa-badge {
+    color: #ffffff;
+    background: var(--erp-bg-card-header);
+    border: 1px solid var(--erp-border);
+}
+
+html[data-portal="student"] a,
+html[data-portal="admin"] a {
+    color: var(--erp-brand);
+}
+
+html[data-portal="student"] a:hover,
+html[data-portal="admin"] a:hover {
+    color: var(--erp-brand-hover);
+}
+
+html[data-portal="student"] .badge-violet,
+html[data-portal="admin"] .badge-violet {
+    background: var(--erp-bg-table-head);
+    color: var(--erp-text);
+    border: 1px solid var(--erp-border);
+}
+
+html[data-portal="student"] .badge-blue,
+html[data-portal="admin"] .badge-blue {
+    background: var(--erp-bg-table-head);
+    color: var(--erp-text);
+    border: 1px solid var(--erp-border);
+}
+
+/* Status badges — light white pills (replaces old green/red/amber tint backgrounds) */
+html[data-portal="student"] .badge-emerald,
+html[data-portal="admin"] .badge-emerald,
+html[data-portal="student"] .badge-red,
+html[data-portal="admin"] .badge-red,
+html[data-portal="student"] .badge-amber,
+html[data-portal="admin"] .badge-amber,
+html[data-portal="student"] .badge-enrolled,
+html[data-portal="student"] .badge-grade,
+html[data-portal="student"] #course-results .badge-enrolled,
+html[data-portal="student"] #course-results .course-credit-badge,
+html[data-portal="student"] #course-results .course-code,
+html[data-portal="student"] .portal-fees-page .fee-status-icon--paid {
+    font-weight: 700;
+}
+
+html[data-portal="student"] .badge-emerald,
+html[data-portal="admin"] .badge-emerald {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-on-text);
+}
+
+html[data-portal="student"] .badge-red,
+html[data-portal="admin"] .badge-red {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-off-text);
+}
+
+html[data-portal="student"] .badge-amber,
+html[data-portal="admin"] .badge-amber {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-warn-text);
+}
+
+html[data-portal="student"] .alert-success,
+html[data-portal="admin"] .alert-success {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-on-text);
+}
+
+html[data-portal="student"] .alert-error,
+html[data-portal="admin"] .alert-error {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-off-text);
+}
+
+html[data-portal="student"] .badge-enrolled {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-text);
+    font-weight: 600;
+}
+
+/* ── Registration — course card highlights ──────────────────────────────── */
+
+html[data-portal="student"] #course-results .course-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+html[data-portal="student"] #course-results .badge-enrolled,
+html[data-portal="student"] #course-results .course-credit-badge,
+html[data-portal="student"] #course-results .course-code {
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-text);
+}
+
+html[data-portal="student"] #course-results .badge-enrolled {
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+}
+
+html[data-portal="student"] #course-results .course-credit-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+html[data-portal="student"] #course-results .course-code {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+html[data-portal="student"] #course-results .course-meta .course-schedule::before {
+    content: none;
+}
+
+html[data-portal="student"] #course-results .course-meta {
+    gap: 0.625rem;
+}
+
+html[data-portal="student"] #credit-hours-banner.portal-credit-banner:not(.portal-credit-banner--full) {
+    background: var(--erp-action-bg);
+    border: 1px solid var(--erp-action-border);
+    color: var(--erp-action-text);
+}
+
+html[data-portal="student"] #course-results .seats-fill {
+    background: var(--erp-cloud);
+}
+
+html[data-portal="student"] #course-results .seats-fill.full {
+    background: var(--erp-cloud-dark);
+}
+
+/* ── Fees — paid check & overdue status ─────────────────────────────────── */
+
+html[data-portal="student"] .portal-fees-page .badge-fee-paid {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: none;
+    color: var(--erp-text);
+    padding: 0;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+html[data-portal="student"] .portal-fees-page .fee-status-icon--paid {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-text);
+    flex-shrink: 0;
+}
+
+html[data-portal="student"] .portal-fees-page .fee-status-icon--paid svg {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+html[data-portal="student"] .portal-fees-page .badge-fee-overdue {
+    background: #9b1c1c;
+    border: 1px solid #7f1d1d;
+    color: #ffffff;
+}
+
+/* ── Academics — grade circular badge ───────────────────────────────────── */
+
+html[data-portal="student"] .badge-grade {
+    display: inline-grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--erp-pill-bg);
+    border: 1px solid var(--erp-pill-border);
+    color: var(--erp-pill-text);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    line-height: 1;
+}
+
+/* ── Readability — student & admin portal type scale ─────────────────────── */
+
+html[data-portal="student"],
+html[data-portal="admin"] {
+    font-size: 17px;
+}
+
+html[data-portal="student"] .portal-inner-header h1,
+html[data-portal="admin"] .page-title {
+    font-size: 1.625rem;
+}
+
+html[data-portal="student"] .portal-inner-header p,
+html[data-portal="admin"] .page-subtitle {
+    font-size: 0.9375rem;
+}
+
+html[data-portal="student"] .portal-page-title {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+}
+
+html[data-portal="student"] .portal-page-subtitle {
+    font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
+}
+
+html[data-portal="student"] .dash-stat-label {
+    font-size: clamp(0.75rem, 1.2vw, 0.8125rem);
+}
+
+html[data-portal="student"] .dash-stat-value {
+    font-size: clamp(1.25rem, 2.5vw, 1.625rem);
+}
+
+html[data-portal="student"] .widget-header {
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+}
+
+html[data-portal="student"] .widget-table {
+    font-size: 0.875rem;
+}
+
+html[data-portal="student"] .widget-table th {
+    font-size: 0.75rem;
+}
+
+html[data-portal="student"] .course-title {
+    font-size: 1.0625rem;
+}
+
+html[data-portal="student"] #course-results .course-meta {
+    font-size: 0.875rem;
+}
+
+html[data-portal="student"] #course-results .course-code,
+html[data-portal="student"] #course-results .course-credit-badge,
+html[data-portal="student"] #course-results .badge-enrolled {
+    font-size: 0.8125rem;
+}
+
+html[data-portal="student"] .portal-footer {
+    font-size: 0.8125rem;
+}
+
+html[data-portal="admin"] .sidebar-nav a {
+    font-size: 0.9375rem;
+}
+
+html[data-portal="student"] .empty-state,
+html[data-portal="admin"] .empty-state {
+    font-size: 0.9375rem;
+}
