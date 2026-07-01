@@ -4,7 +4,6 @@
 {% block content %}
 <div class="portal-inner-header">
     <h1>Class Schedule</h1>
-    <p>{{ semester.name if semester else 'Current semester' }}</p>
 </div>
 {% if courses %}
 <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:1.25rem;">
@@ -38,7 +37,7 @@
             {% if course.status == 'waitlisted' %}
             <span class="badge badge-amber">Waitlisted</span>
             {% else %}
-            <span class="badge badge-emerald">Enrolled</span>
+            <span class="badge badge-enrolled">Enrolled</span>
             {% endif %}
         </div>
     </div>
@@ -47,7 +46,7 @@
 {% else %}
 <div class="glass-card">
     <div class="empty-state">
-        <p>No classes scheduled for {{ semester.name if semester else 'this semester' }}.</p>
+        <p>No classes scheduled.</p>
         <a href="{{ url_for('student_courses') }}" class="btn btn-primary" style="margin-top:1rem;">Register for Courses</a>
     </div>
 </div>
