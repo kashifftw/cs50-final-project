@@ -4,26 +4,23 @@
 {% block content %}
 <div class="portal-inner-header">
     <h1>Course Registration</h1>
-    <p>Enroll in courses offered for each semester</p>
 </div>
 <div id="registration-status-banner">
     {% if semester and semester.registration_open %}
     <div class="portal-banner portal-banner-open">
         <div class="portal-banner-body">
             <strong>Registration open — {{ semester.name }}</strong>
-            <p>Select courses below to enroll. Each subject is one course: <strong>2 cr</strong> (theory) or <strong>3 cr</strong> (theory + lab).</p>
         </div>
     </div>
     {% elif semester %}
     <div class="portal-banner portal-banner-closed">
         <div class="portal-banner-body">
             <strong>Registration closed — {{ semester.name }}</strong>
-            <p>Course listings are for reference only until the registrar opens enrollment.</p>
         </div>
     </div>
     {% else %}
     <div class="portal-banner portal-banner-closed">
-        <div class="portal-banner-body"><strong>No active semester.</strong> Contact the registrar.</div>
+        <div class="portal-banner-body"><strong>No active semester</strong></div>
     </div>
     {% endif %}
 </div>
